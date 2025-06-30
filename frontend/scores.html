@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>Classement – Cyber Detective</title>
+  <style>
+    body { 
+      font-family:'Courier New', monospace; 
+      background: linear-gradient(135deg,#0f0f23,#1a1a3a);
+      color:#00ff41;
+      display:flex;flex-direction:column;
+      align-items:center;padding:20px;
+    }
+    h1 { text-shadow:0 0 10px #00ff41; margin-bottom:20px; }
+    table { border-collapse:collapse; width:100%; max-width:600px; }
+    th, td { border:1px solid #00ff41; padding:8px; text-align:center; }
+    th { background:rgba(0,255,65,0.2); }
+  </style>
+</head>
+<body>
+  <h1>🏆 Classement des équipes</h1>
+  <table>
+    <thead>
+      <tr><th>Rang</th><th>Équipe</th><th>Temps (s)</th><th>Date</th></tr>
+    </thead>
+    <tbody id="scoreTable">
+      <tr><td colspan="4">Chargement…</td></tr>
+    </tbody>
+  </table>
+
+  <script>
+    async function loadScores() {
+      try {
+        const res = await fetch('/api/scores');
+        const scores = await res.json();  // doit renvoyer un tableau trié [{team,duration,created_at},…]
+        const tbody = document.getElementById('scoreTable');
+        tbody.innerHTML = scores.map((s,i) => `
+          <tr>
+            <td>${i+1}</td>
+            <td>${s.team_name}</td>
+            <td>${s.duration_seconds}</td>
+            <td>${new Date(s.created_at).toLocaleString()}</td>
+          </tr>
+        `).join('');
+      } catch (e) {
+        console.error(e);
+        document.getElementById('scoreTable').innerHTML =
+          '<tr><td colspan="4">Impossible de charger le classement.</td></tr>';
+      }
+    }
+    loadScores();
+  </script>
+</body>
+</html>

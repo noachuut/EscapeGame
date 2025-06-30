@@ -833,7 +833,7 @@
         body: JSON.stringify({ team, duration })
       });
       if (!res.ok) throw new Error(`Status ${res.status}`);
-      alert('🎉 Succès ! Thomas est sauvé et votre temps a été enregistré.');
+      window.location.href = 'scores.html';
     } catch (err) {
       console.error('Erreur enregistrement score :', err);
       alert('⚠️ Succès local, mais impossible d’enregistrer votre temps.');
