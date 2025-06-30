@@ -29,11 +29,25 @@ app.post('/api/save-score', async (req, res) => {
   if (!team || typeof duration !== 'number') {
     return res.status(400).json({ error: 'Données invalides' });
   }
+
+
   try {
+    // 1) Vérifier si l'équipe existe déjà
+    const { rows } = await pool.query(
+      'SELECT 1 FROM scores WHERE team_name = $1',
+      [team]
+    );
+    if (rows.length > 0) {
+      // Conflit : nom déjà pris
+      return res.status(409).json({ error: 'Nom d’équipe déjà utilisé' });
+    }
+
+    // 2) Sinon, insérer
     await pool.query(
       'INSERT INTO scores (team_name, duration_seconds) VALUES ($1, $2)',
       [team, duration]
     );
+    
     res.status(201).end();
   } catch (err) {
     console.error(err);
