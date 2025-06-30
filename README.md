@@ -33,7 +33,7 @@ Suivez ces étapes pour lancer l’ensemble du jeu **Cyber Detective** en local,
 ## 1. Cloner le dépôt
 
 ```bash
-git clone https://github.com/votre-orga/cyber-detective.git](https://github.com/noachuut/EscapeGame.git
+git clone https://github.com/noachuut/EscapeGame.git
 cd EscapeGame
 ```
 
