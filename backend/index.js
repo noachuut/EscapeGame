@@ -8,8 +8,19 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-app.get('/ping', (req, res) => {
-  res.send('pong');
+app.get('/api/scores', async (req,res) => {
+  try {
+    const { rows } = await pool.query(
+      `SELECT team_name, duration_seconds, created_at
+       FROM scores
+       ORDER BY duration_seconds ASC, created_at ASC
+       LIMIT 10`
+    );
+    res.json(rows);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error : "Erreur serveur"});
+  }
 });
 
 // Endpoint pour sauver un score
