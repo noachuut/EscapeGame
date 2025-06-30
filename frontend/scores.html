@@ -32,7 +32,7 @@
   <script>
     async function loadScores() {
       try {
-        const res = await fetch('/api/scores');
+        const res = await fetch('http://localhost:3000/api/scores');
         const scores = await res.json();  // doit renvoyer un tableau trié [{team,duration,created_at},…]
         const tbody = document.getElementById('scoreTable');
         tbody.innerHTML = scores.map((s,i) => `
