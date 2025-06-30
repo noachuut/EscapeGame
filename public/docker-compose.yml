@@ -11,6 +11,7 @@ services:
       POSTGRES_PASSWORD: TrèsS3curisé! # mot de passe
     volumes:
       - pgdata:/var/lib/postgresql/data
+      - ./sql/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
     ports:
       - "5432:5432"    # expose le port PostgreSQL en local
 

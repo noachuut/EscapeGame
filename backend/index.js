@@ -74,4 +74,4 @@ app.post('/api/save-score', async (req, res) => {
 app.get('/api/health', (req, res) => res.json({ status: 'OK' }));
 
 const port = process.env.PORT || 3000;
-app.listen(port, () => console.log(`API écoute sur port ${port}`));
+app.listen(port, () => console.log(`Serveur Express démarré sur http://localhost:${port}`));

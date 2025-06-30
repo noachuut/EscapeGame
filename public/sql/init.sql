@@ -1,0 +1,6 @@
+CREATE TABLE IF NOT EXISTS scores (
+  id SERIAL PRIMARY KEY,
+  team_name VARCHAR(100) NOT NULL UNIQUE,
+  duration_seconds INTEGER NOT NULL,
+  created_at TIMESTAMPTZ DEFAULT NOW()
+);
