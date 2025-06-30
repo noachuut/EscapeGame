@@ -1,0 +1,18 @@
+version: '3.8'
+
+services:
+  db:
+    image: postgres:15        # ou la version souhaitée
+    container_name: pg_escape
+    restart: always
+    environment:
+      POSTGRES_DB: escape_game        # nom de la base
+      POSTGRES_USER: escaper           # utilisateur principal
+      POSTGRES_PASSWORD: TrèsS3curisé! # mot de passe
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"    # expose le port PostgreSQL en local
+
+volumes:
+  pgdata:

@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Cyber Detective – Accueil</title>
+  <style>
+    * { margin:0; padding:0; box-sizing:border-box; }
+    body {
+      font-family:'Courier New', monospace;
+      background: linear-gradient(135deg,#0f0f23,#1a1a3a);
+      color:#00ff41;
+      height:100vh;
+      overflow:hidden;
+    }
+    .matrix-bg {
+      position:fixed; top:0; left:0;
+      width:100%; height:100%;
+      pointer-events:none; opacity:0.1; z-index:-1;
+    }
+    .welcome {
+      position:absolute;
+      top:50%; left:50%;
+      transform:translate(-50%,-50%);
+      background:rgba(0,255,65,0.05);
+      border:2px solid #00ff41;
+      border-radius:10px;
+      padding:40px;
+      text-align:center;
+      width:80%; max-width:600px;
+      box-shadow:0 0 20px rgba(0,255,65,0.3);
+    }
+    .welcome h1 {
+      font-size:2em; margin-bottom:20px;
+      text-shadow:0 0 10px #00ff41;
+    }
+    .input-group { margin-bottom:20px; text-align:center; margin-top: 20px;}
+    .input-group label { display:block; margin-bottom:5px; }
+    .input-group input {
+      width:100%; padding:10px;
+      background:rgba(0,0,0,0.5);
+      border:2px solid #00ff41;
+      border-radius:5px;
+      color:#00ff41;
+    }
+    .btn-start {
+      background:linear-gradient(45deg,#00ff41,#00cc33);
+      color:#000; border:none;
+      padding:12px 20px; border-radius:5px;
+      cursor:pointer; font-size:1em;
+      transition:all 0.3s ease;
+    }
+    .btn-start:hover {
+      transform:scale(1.05);
+      box-shadow:0 5px 15px rgba(0,255,65,0.4);
+    }
+  </style>
+</head>
+<body>
+  <canvas class="matrix-bg" id="matrix"></canvas>
+
+  <div class="welcome">
+    <h1>🕵️ CYBER DETECTIVE 🕵️</h1>
+    <p>Bienvenue enquêteurs !</p>
+    <div class="input-group">
+      <label for="teamName">Nom de votre équipe :</label>
+      <input type="text" id="teamName" placeholder="Ex : Kitamort">
+    </div>
+    <button class="btn-start" onclick="startGame()">Démarrer la mission</button>
+  </div>
+
+  <script>
+    function startGame() {
+      const name = document.getElementById('teamName').value.trim();
+      if (!name) {
+        alert("Veuillez entrer un nom d'équipe.");
+        return;
+      }
+      // Stocke le nom en localStorage pour la page de jeu
+      localStorage.setItem('cyberTeam', name);
+      // Redirige vers la page du jeu
+      window.location.href = 'game.html';
+      
+    }
+    function initMatrix() {
+            const canvas = document.getElementById('matrix');
+            const ctx = canvas.getContext('2d');
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+            const chars = '01アイウエオカキクケコサシスセソタチツテトナニヌネノハヒフヘホマミムメモヤユヨラリルレロワン';
+            const charArray = chars.split('');
+            const fontSize = 14;
+            const columns = canvas.width / fontSize;
+            const drops = Array.from({ length: columns }).map(() => 1);
+            function draw() {
+                ctx.fillStyle = 'rgba(15, 15, 35, 0.05)';
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+                ctx.fillStyle = '#00ff41';
+                ctx.font = fontSize + 'px monospace';
+                drops.forEach((y, i) => {
+                    const text = charArray[Math.floor(Math.random() * charArray.length)];
+                    ctx.fillText(text, i * fontSize, y * fontSize);
+                    if (y * fontSize > canvas.height && Math.random() > 0.975) drops[i] = 0;
+                    drops[i]++;
+                });
+            }
+            setInterval(draw, 50);
+        }
+    window.onload = () => { initMatrix();};
+  </script>
+</body>
+</html>
