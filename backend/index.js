@@ -8,6 +8,21 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
+
+// endpoint pour verifier si le nom d'equipe existe déja ou pas 
+
+app.get('/api/check-team', async (req, res) => {
+  const team = req.query.team;
+  if (!team) return res.status(400).end();
+  const { rows } = await pool.query(
+    'SELECT 1 FROM scores WHERE team_name = $1',
+    [team]
+  );
+  res.json({ exists: rows.length > 0 });
+});
+
+
+
 app.get('/api/scores', async (req,res) => {
   try {
     const { rows } = await pool.query(
@@ -47,7 +62,7 @@ app.post('/api/save-score', async (req, res) => {
       'INSERT INTO scores (team_name, duration_seconds) VALUES ($1, $2)',
       [team, duration]
     );
-    
+
     res.status(201).end();
   } catch (err) {
     console.error(err);

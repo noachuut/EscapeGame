@@ -70,16 +70,34 @@
   </div>
 
   <script>
-    function startGame() {
+    async function startGame() {
       const name = document.getElementById('teamName').value.trim();
       if (!name) {
         alert("Veuillez entrer un nom d'équipe.");
         return;
       }
-      // Stocke le nom en localStorage pour la page de jeu
+
+
+      try {
+        const res = await fetch(`http://localhost:3000/api/check-team?team=${encodeURIComponent(name)}`);
+        if (!res.ok) throw new Error(`Erreur réseau (${res.status})`);
+        const { exists } = await res.json();
+
+        if (exists) {
+          alert("Ce nom d'équipe est déjà pris. Choisissez-en un autre.");
+          return;
+        }
+
+        // Stocke le nom en localStorage pour la page de jeu
       localStorage.setItem('cyberTeam', name);
       // Redirige vers la page du jeu
       window.location.href = 'game.html';
+      }
+
+      catch (err) {
+      console.error("startGame ›", err);
+      alert("Impossible de vérifier le nom d'équipe. Réessayez plus tard.");
+    }
       
     }
     function initMatrix() {
