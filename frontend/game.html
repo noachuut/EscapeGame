@@ -769,8 +769,7 @@
                     .textContent = `${completedActivities}/${total} activités complétées`;
 
             // Afficher la section finale uniquement quand tout est fait
-            document.getElementById('finalSection').style.display =
-                (completedActivities === total ? 'block' : 'none');
+            
         }
 
         // Affichage message
@@ -791,6 +790,16 @@
             status.textContent = '✓';
             status.style.backgroundColor = '#0f0';
             completedActivities++;
+
+            if (n === 4) {
+                // Calculez et stockez ici le mot de passe final
+                const finalPwd = answers.caesar + answers.phishing + answers.strongestPassword + answers.osint;
+                localStorage.setItem('sessionPwd', finalPwd);
+                // Petite pause pour laisser l’UI se mettre à jour
+                setTimeout(() => {
+                window.location.href = 'unlock.html';
+                }, 800);
+            }
             updateProgress();
         }
 
