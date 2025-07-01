@@ -140,8 +140,9 @@
         }
 
         .activity-card.locked {
-            opacity: 0.5;
-            border-color: #666;
+        opacity: 0.4;                /* visuellement désactivée */
+        pointer-events: none;        /* plus aucun clic possible */
+        filter: grayscale(0.8);      /* un peu de gris */
         }
 
         .activity-title {
@@ -433,7 +434,7 @@
                 <div class="activity-description">
                     <p>Thomas a griffonné ce message chiffré sur son cahier avant de disparaître:</p>
                     <div style="background: #222; padding: 15px; border-radius: 5px; margin: 10px 0; font-family: monospace; font-size: 1.2em; text-align: center; color: #ff6666;">
-                        "MRXV DYHC WURLV MRXUV SRXU PH WURXYHU"
+                        "YRXV DYHC WURLV MRXUV SRXU PH WURXYHU"
                     </div>
                     <p>Indice: Thomas adorait Jules César et ses méthodes de chiffrement...</p>
                 </div>
@@ -697,17 +698,42 @@
 
         // Progression
         function updateProgress() {
-            const progress = (completedActivities / 4) * 100;
-            document.getElementById('progressBar').style.width = progress + '%';
-            document.getElementById('progressText').textContent = `${completedActivities}/4 activités complétées`;
-            if (completedActivities < 4) {
-                const next = document.getElementById(`activity${completedActivities+1}`);
-                if (next) next.classList.remove('locked');
-                document.getElementById('finalSection').style.display = 'none';
+            const total = 4;
+            for (let i = 1; i <= total; i++) {
+                const card   = document.getElementById(`activity${i}`);
+                const status = document.getElementById(`status${i}`);
+
+                if (i <= completedActivities) {
+                // ✅ Activités déjà validées
+                card.classList.add('completed');
+                card.classList.remove('locked');
+                status.textContent = '✓';
+                status.style.backgroundColor = '#0f0';
+                }
+                else if (i === completedActivities + 1) {
+                // 🔓 La prochaine activité à faire
+                card.classList.remove('locked');
+                status.textContent = String(i);
+                status.style.backgroundColor = '';
+                }
+                else {
+                // 🔒 Toutes les autres sont verrouillées
+                card.classList.add('locked');
+                status.textContent = String(i);
+                status.style.backgroundColor = '';
+                card.classList.remove('completed');
+                }
             }
-            if (completedActivities === 4) {
-                document.getElementById('finalSection').style.display = 'block';
-            }
+
+            // Mettre à jour la barre et le texte
+            const percent = (completedActivities / total) * 100;
+            document.getElementById('progressBar').style.width = percent + '%';
+            document.getElementById('progressText')
+                    .textContent = `${completedActivities}/${total} activités complétées`;
+
+            // Afficher la section finale uniquement quand tout est fait
+            document.getElementById('finalSection').style.display =
+                (completedActivities === total ? 'block' : 'none');
         }
 
         // Affichage message
@@ -903,7 +929,11 @@
 
 
         // Initialisation
-        window.onload = () => { initMatrix(); updateTimer(); };
+        window.onload = () => { 
+            initMatrix(); 
+            updateTimer(); 
+            updateProgress();        // met à jour locks/completed dès le départ
+            document.getElementById('activity1').classList.add('visible'); };
     </script>
 </body>
 </html>
