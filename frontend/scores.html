@@ -22,8 +22,10 @@
   <h1>🏆 Classement des équipes</h1>
   <table>
     <thead>
-      <tr><th>Rang</th><th>Équipe</th><th>Temps (s)</th><th>Date</th></tr>
-    </thead>
+  <tr>
+    <th>Rang</th><th>Équipe</th><th>Temps (s)</th><th>Date</th><th>Vitesse</th>
+  </tr>
+</thead>
     <tbody id="scoreTable">
       <tr><td colspan="4">Chargement…</td></tr>
     </tbody>
@@ -35,18 +37,27 @@
         const res = await fetch('http://localhost:3000/api/scores');
         const scores = await res.json();  // doit renvoyer un tableau trié [{team,duration,created_at},…]
         const tbody = document.getElementById('scoreTable');
-        tbody.innerHTML = scores.map((s,i) => `
-          <tr>
-            <td>${i+1}</td>
-            <td>${s.team_name}</td>
-            <td>${s.duration_seconds}</td>
-            <td>${new Date(s.created_at).toLocaleString()}</td>
-          </tr>
-        `).join('');
+        tbody.innerHTML = scores.map((s, i) => {
+            // Choix de l’icône selon s.badge
+            let icon = '';
+            if (s.badge === 'or')      icon = '🥇';
+            else if (s.badge === 'argent') icon = '🥈';
+            else if (s.badge === 'bronze') icon = '🥉';
+
+            return `
+              <tr>
+                <td>${i + 1}</td>
+                <td>${s.team_name}</td>
+                <td>${s.duration_seconds}</td>
+                <td>${new Date(s.created_at).toLocaleString()}</td>
+                <td>${icon}</td>
+              </tr>
+            `;
+          }).join('');     
       } catch (e) {
         console.error(e);
         document.getElementById('scoreTable').innerHTML =
-          '<tr><td colspan="4">Impossible de charger le classement.</td></tr>';
+          '<tr><td colspan="5">Impossible de charger le classement.</td></tr>';
       }
     }
     loadScores();

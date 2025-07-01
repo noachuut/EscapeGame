@@ -26,7 +26,7 @@ app.get('/api/check-team', async (req, res) => {
 app.get('/api/scores', async (req,res) => {
   try {
     const { rows } = await pool.query(
-      `SELECT team_name, duration_seconds, created_at
+      `SELECT team_name, duration_seconds, created_at, badge
        FROM scores
        ORDER BY duration_seconds ASC, created_at ASC
        LIMIT 10`

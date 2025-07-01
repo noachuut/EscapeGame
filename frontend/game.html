@@ -396,6 +396,17 @@
           color: #1fdb0e;
           position: absolute;
         }
+
+                @keyframes revealCard {
+        0%   { opacity: 0; transform: translateY(20px) scale(0.95); }
+        60%  { opacity: 1; transform: translateY(-5px) scale(1.02); }
+        100% { opacity: 1; transform: translateY(0) scale(1); }
+        }
+
+        .activity-card.unlocked {
+        animation: revealCard 0.6s ease-out;
+        }
+
     </style>
 </head>
 <body>
@@ -639,6 +650,24 @@
         let passwordSelectionOrder = [];
         let timeLeft = 600; // 60 minutes
         const totalTime = timeLeft;
+        let lastUnlocked = 0;
+
+
+
+        // Pénalité de 10 secondes sur une mauvaise réponse
+        function applyPenalty() {
+        // on décrémente le timer
+        timeLeft = Math.max(0, timeLeft - 10);
+        // on rafraîchit l'affichage (sans relancer le setTimeout)
+        const minutes = Math.floor(timeLeft / 60);
+        const seconds = timeLeft % 60;
+        const timerEl = document.getElementById('timer');
+        timerEl.querySelector('.timer-label').textContent =
+            `${String(minutes).padStart(2,'0')}:${String(seconds).padStart(2,'0')}`;
+        timerEl.style.setProperty('--pct', Math.max(0, timeLeft / totalTime));
+        // message d’info
+        showMessage(document.body, '⏱️ 10 sec de pénalité !', false);
+        }
 
         // Reset de l'activité 3
         function resetActivity3() {
@@ -696,6 +725,7 @@
             setTimeout(updateTimer, 1000);
         }
 
+        
         // Progression
         function updateProgress() {
             const total = 4;
@@ -711,10 +741,17 @@
                 status.style.backgroundColor = '#0f0';
                 }
                 else if (i === completedActivities + 1) {
-                // 🔓 La prochaine activité à faire
+                if (lastUnlocked !== i) {
+                    // => on vient juste de la déverrouiller : animation !
+                    card.classList.add('unlocked');
+                    // retire la classe après l’animation pour pouvoir la rejouer
+                    card.addEventListener('animationend', () => {
+                    card.classList.remove('unlocked');
+                    }, { once: true });
+                    lastUnlocked = i;
+                }
                 card.classList.remove('locked');
                 status.textContent = String(i);
-                status.style.backgroundColor = '';
                 }
                 else {
                 // 🔒 Toutes les autres sont verrouillées
@@ -788,6 +825,7 @@
 
                 markActivityCompleted(1);
             } else {
+                applyPenalty();
                 showMessage(card, 'Ce n\'est pas le bon mot…', false);
             }
         }
@@ -817,6 +855,7 @@
 
                 markActivityCompleted(2);
             } else {
+                applyPenalty();
                 showMessage(card, 'Non, ce n\'est pas celui-là.', false);
             }
         }
@@ -849,6 +888,7 @@
 
                 markActivityCompleted(3);
             } else {
+                applyPenalty();
                 showMessage(card, 'L\'ordre n\'est pas correct, réinitialisation...', false);
                 setTimeout(resetActivity3, 500);
             }
@@ -874,6 +914,7 @@
 
                 markActivityCompleted(4);
             } else {
+                applyPenalty();
                 showMessage(card, 'Ça ne correspond pas.', false);
             }
         }
@@ -913,6 +954,7 @@
                 }
 
             } else {
+                applyPenalty();
                 alert('❌ Mot de passe ou suspect incorrect. Réessayez.');
             }
         }
