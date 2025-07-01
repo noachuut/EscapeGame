@@ -4,6 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Cyber Detective – Accueil</title>
+  <link rel="icon" href="assets/logo.png" type="image/png">
   <style>
     * { margin:0; padding:0; box-sizing:border-box; }
     body {
@@ -54,10 +55,63 @@
       transform:scale(1.05);
       box-shadow:0 5px 15px rgba(0,255,65,0.4);
     }
+
+    /* Intro overlay full-screen */
+#intro-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 15, 35, 0.95);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  z-index: 2000;
+  animation: introFade 6s ease-in-out forwards;
+}
+
+/* Logo et message */
+#intro-logo {
+  width: 150px;
+  filter: drop-shadow(0 0 10px #00ff41);
+  margin-bottom: 20px;
+  border-radius: 50%;      /* ← rend l’image circulaire */
+  object-fit: cover;  
+}
+#intro-text {
+  color: #1fdb0e;
+  font-family: 'Courier New', monospace;
+  font-size: 1.2rem;
+  text-align: center;
+  text-shadow: 0 0 8px #00ff41;
+  line-height: 1.4;
+  max-width: 600px;
+  animation: textPulse 2s infinite alternate 1s;
+}
+
+/* Animation de disparition */
+@keyframes introFade {
+  0%   { opacity: 0; }
+  20%  { opacity: 1; }
+  80%  { opacity: 1; }
+ 100%  { opacity: 0; visibility: hidden; }
+}
+
+/* Légère pulsation du texte */
+@keyframes textPulse {
+  from { text-shadow: 0 0 8px #00ff41; }
+  to   { text-shadow: 0 0 16px #00ff41, 0 0 24px #00ff41; }
+}
+
   </style>
 </head>
 <body>
   <canvas class="matrix-bg" id="matrix"></canvas>
+
+  <div id="intro-overlay">
+  <img src="assets/logo.png" alt="Logo Cyber Detective" id="intro-logo">
+  <p id="intro-text">« Bienvenue dans l'Escape Game Cyber Detective,<br>
+  imaginé par les BTS SIO. Thomas a besoin de vous : soyez rapides ! »</p>
+  </div>
 
   <div class="welcome">
     <h1>🕵️ CYBER DETECTIVE 🕵️</h1>
@@ -70,6 +124,14 @@
   </div>
 
   <script>
+
+    document.getElementById('intro-overlay')
+    .addEventListener('animationend', () => {
+      document.getElementById('intro-overlay').remove();
+      // Optionnel : lancer ici l'animation Matrix ou montrer .welcome
+      document.querySelector('.welcome').classList.add('visible');
+    });
+
     async function startGame() {
       const name = document.getElementById('teamName').value.trim();
       if (!name) {
@@ -124,6 +186,7 @@
             }
             setInterval(draw, 50);
         }
+    
     window.onload = () => { initMatrix();};
   </script>
 </body>

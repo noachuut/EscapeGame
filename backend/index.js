@@ -45,6 +45,10 @@ app.post('/api/save-score', async (req, res) => {
     return res.status(400).json({ error: 'Données invalides' });
   }
 
+  let badge = '';
+    if (duration < 120)      badge = 'or';
+    else if (duration < 300) badge = 'argent';
+    else if (duration < 480) badge = 'bronze';
 
   try {
     // 1) Vérifier si l'équipe existe déjà
@@ -59,11 +63,10 @@ app.post('/api/save-score', async (req, res) => {
 
     // 2) Sinon, insérer
     await pool.query(
-      'INSERT INTO scores (team_name, duration_seconds) VALUES ($1, $2)',
-      [team, duration]
+      'INSERT INTO scores (team_name, duration_seconds, badge) VALUES ($1, $2, $3)',
+      [team, duration, badge]
     );
-
-    res.status(201).end();
+    res.status(201).json({ badge });
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: 'Erreur serveur' });

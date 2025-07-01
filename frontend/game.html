@@ -1,10 +1,31 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
+    
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Cyber Detective - Sauver Thomas</title>
+    <link rel="icon" href="assets/logo.png" type="image/png">
+
     <style>
+        .badge-global {
+        margin: 20px auto;
+        padding: 12px 20px;
+        background: linear-gradient(45deg, #ffd700, #ff8c00);
+        color: #000;
+        font-size: 1.2rem;
+        font-weight: bold;
+        border-radius: 8px;
+        display: inline-block;
+        animation: popIn 0.6s ease;
+        }
+
+        @keyframes popIn {
+        from { transform: scale(0.5); opacity: 0; }
+        to   { transform: scale(1);   opacity: 1; }
+        }
+
+
         * {
             margin: 0;
             padding: 0;
@@ -730,10 +751,15 @@
             if (answer === 'VOUS') {
                 answers.caesar = answer;
                 showMessage(card, 'Message correctement déchiffré !', true);
+
+                const btn = document.querySelector('#activity1 button.btn');
+                btn.disabled = true;
+
                 const out = document.createElement('div');
                 out.style.marginTop = '10px';
                 out.textContent = `🔒 Portion mot de passe: ${answer}`;
                 card.appendChild(out);
+
                 markActivityCompleted(1);
             } else {
                 showMessage(card, 'Ce n\'est pas le bon mot…', false);
@@ -754,10 +780,15 @@
             if (selectedEmailId === 1) {
                 answers.phishing = selectedEmailId;
                 showMessage(card, 'Correct ! C\'est bien un phishing.', true);
+
+                const btn = document.querySelector('#activity2 button.btn');
+                btn.disabled = true;
+
                 const out = document.createElement('div');
                 out.style.marginTop = '10px';
                 out.textContent = `🔒 Portion mot de passe: ${answers.phishing}`;
                 card.appendChild(out);
+
                 markActivityCompleted(2);
             } else {
                 showMessage(card, 'Non, ce n\'est pas celui-là.', false);
@@ -781,10 +812,15 @@
                 const raw = document.getElementById('pwd3').textContent.trim();
                 answers.strongestPassword = raw.replace(/^\S+\s*/, '');
                 showMessage(card, 'Bien classés !', true);
+
+                const btn = document.querySelector('#activity3 button.btn');
+                btn.disabled = true;
+
                 const out = document.createElement('div');
                 out.style.marginTop = '10px';
                 out.textContent = `🔒 Portion mot de passe: ${answers.strongestPassword}`;
                 card.appendChild(out);
+
                 markActivityCompleted(3);
             } else {
                 showMessage(card, 'L\'ordre n\'est pas correct, réinitialisation...', false);
@@ -801,10 +837,15 @@
             if (d===15 && m===8 && y===1987) {
                 answers.osint = `${String(d).padStart(2,'0')}${String(m).padStart(2,'0')}${y}`;
                 showMessage(card, 'Date correctement trouvée !', true);
+
+                const btn = document.querySelector('#activity4 button.btn');
+                btn.disabled = true;
+
                 const out = document.createElement('div');
                 out.style.marginTop = '10px';
                 out.textContent = `🔒 Portion mot de passe: ${answers.osint}`;
                 card.appendChild(out);
+
                 markActivityCompleted(4);
             } else {
                 showMessage(card, 'Ça ne correspond pas.', false);
@@ -819,30 +860,47 @@
             });
         }
         async function finalCheck() {
-  const input    = document.getElementById('session-password').value.trim();
-  const expected = answers.caesar + answers.phishing + answers.strongestPassword + answers.osint;
-  if (input === expected && selectedSuspect === 1) {
-    const duration = totalTime - timeLeft;                // secondes écoulées
-    const team     = localStorage.getItem('cyberTeam');   // nom de l’équipe
+            const input    = document.getElementById('session-password').value.trim();
+            const expected = answers.caesar + answers.phishing + answers.strongestPassword + answers.osint;
+            if (input === expected && selectedSuspect === 1) {
+                const duration = totalTime - timeLeft;                // secondes écoulées
+                const team     = localStorage.getItem('cyberTeam');   // nom de l’équipe
 
-    try {
-      // Envoi du score au back-end
-      const res = await fetch('http://localhost:3000/api/save-score', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ team, duration })
-      });
-      if (!res.ok) throw new Error(`Status ${res.status}`);
-      window.location.href = 'scores.html';
-    } catch (err) {
-      console.error('Erreur enregistrement score :', err);
-      alert('⚠️ Succès local, mais impossible d’enregistrer votre temps.');
-    }
+                try {
+                    const res = await fetch('http://localhost:3000/api/save-score', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ team, duration })
+                    });
+                    if (!res.ok) throw new Error(res.status);
+                    const { badge } = await res.json();
 
-  } else {
-    alert('❌ Mot de passe ou suspect incorrect. Réessayez.');
-  }
-}
+                    // Affiche la médaille
+                    showBadge(badge);
+
+                    // Après un délai, redirige vers le classement
+                    setTimeout(() => window.location.href = 'scores.html', 3000);
+
+                    } catch (err) {
+                    console.error(err);
+                    alert('Succès local, mais impossible d’enregistrer votre score.');
+                }
+
+            } else {
+                alert('❌ Mot de passe ou suspect incorrect. Réessayez.');
+            }
+        }
+
+        function showBadge(badge) {
+            const icons = { or:'🥇', argent:'🥈', bronze:'🥉' };
+            if (!icons[badge]) return;
+
+            const el = document.createElement('div');
+            el.className = 'badge-global';
+            el.textContent = `${icons[badge]} Médaille ${(badge).charAt(0).toUpperCase() + badge.slice(1)}`;
+            document.getElementById('finalSection').appendChild(el);
+        }
+
 
         // Initialisation
         window.onload = () => { initMatrix(); updateTimer(); };
