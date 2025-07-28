@@ -105,8 +105,8 @@ npx serve .
 | ------- | -------------------- | ---------------------------------------------------------- |
 | GET     | `/api/health`        | Vérifie que le serveur est en ligne                        |
 | GET     | `/api/check-team`    | Vérifie si un nom d’équipe existe (`?team=…`)              |
-| POST    | `/api/save-score`    | Enregistre un score `{ team, duration }`                   |
-| GET     | `/api/scores`        | Récupère le Top 10 `{ team_name, duration_seconds, created_at }` |
+| POST    | `/api/save-score`    | Enregistre un score `{ team, duration }` et renvoie `{ badge }` |
+| GET     | `/api/scores`        | Récupère le Top 10 `{ team_name, duration_seconds, created_at, badge }` |
 | DELETE  | `/api/scores`        | Vide la table `scores` (usage administrative)              |
 
 ---
@@ -119,6 +119,7 @@ npx serve .
   id SERIAL PRIMARY KEY,
   team_name VARCHAR(100) NOT NULL UNIQUE,
   duration_seconds INTEGER NOT NULL,
+  badge VARCHAR(20),
   created_at TIMESTAMPTZ DEFAULT NOW()
 
 
