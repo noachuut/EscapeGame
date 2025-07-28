@@ -207,6 +207,8 @@
             font-weight: bold;
             font-family: 'Courier New', monospace;
             transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
         }
 
         .btn:hover {
@@ -214,10 +216,28 @@
             box-shadow: 0 5px 15px rgba(0, 255, 65, 0.4);
         }
 
+        .btn:active { transform: scale(0.95); }
         .btn:disabled {
             opacity: 0.5;
             cursor: not-allowed;
         }
+
+        .ripple {
+            position: absolute;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.4);
+            transform: scale(0);
+            pointer-events: none;
+            animation: ripple 0.6s linear;
+        }
+        @keyframes ripple { to { transform: scale(4); opacity: 0; } }
+
+        .fade-overlay {
+            position: fixed; inset: 0; background: #000;
+            opacity: 0; pointer-events: none;
+            transition: opacity 0.6s; z-index: 3000;
+        }
+        .fade-overlay.active { opacity: 1; }
 
         .phishing-email {
             background: #222;
@@ -411,6 +431,7 @@
 </head>
 <body>
     <canvas class="matrix-bg" id="matrix"></canvas>
+    <div id="fadeOverlay" class="fade-overlay"></div>
     <div id="timer" class="timer-circle" style="--pct: 1;">
       <div class="timer-label">60:00</div>
     </div>
@@ -797,7 +818,7 @@
                 localStorage.setItem('sessionPwd', finalPwd);
                 // Petite pause pour laisser l’UI se mettre à jour
                 setTimeout(() => {
-                window.location.href = 'unlock.html';
+                fadeTo('unlock.html');
                 }, 800);
             }
             updateProgress();
@@ -954,8 +975,8 @@
                     // Affiche la médaille
                     showBadge(badge);
 
-                    // Après un délai, redirige vers le classement
-                    setTimeout(() => window.location.href = 'scores.html', 3000);
+                    // Après un délai, transition vers le classement
+                    setTimeout(() => fadeTo('scores.html'), 3000);
 
                     } catch (err) {
                     console.error(err);
@@ -978,13 +999,37 @@
             document.getElementById('finalSection').appendChild(el);
         }
 
+        function attachRipples() {
+            document.querySelectorAll('button').forEach(btn => {
+                btn.addEventListener('click', e => {
+                    const r = document.createElement('span');
+                    r.className = 'ripple';
+                    const rect = btn.getBoundingClientRect();
+                    const size = Math.max(rect.width, rect.height);
+                    r.style.width = r.style.height = size + 'px';
+                    r.style.left = (e.clientX - rect.left - size/2) + 'px';
+                    r.style.top  = (e.clientY - rect.top  - size/2) + 'px';
+                    btn.appendChild(r);
+                    setTimeout(() => r.remove(), 600);
+                });
+            });
+        }
+
+        function fadeTo(url) {
+            const ov = document.getElementById('fadeOverlay');
+            ov.classList.add('active');
+            setTimeout(() => { window.location.href = url; }, 600);
+        }
+
 
         // Initialisation
-        window.onload = () => { 
-            initMatrix(); 
-            updateTimer(); 
+        window.onload = () => {
+            initMatrix();
+            updateTimer();
             updateProgress();        // met à jour locks/completed dès le départ
-            document.getElementById('activity1').classList.add('visible'); };
+            document.getElementById('activity1').classList.add('visible');
+            attachRipples();
+        };
     </script>
 </body>
 </html>
