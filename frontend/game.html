@@ -837,27 +837,40 @@
                 return String.fromCharCode((c.charCodeAt(0)-65 - shift + 26) % 26 + 65);
             }).join('');
             document.getElementById('caesar-result').value = output;
-            const first = output.split(' ')[0];
-            const answer = document.getElementById('caesar-answer').value.trim().toUpperCase();
+            const answer = document.getElementById('caesar-answer').value.trim();
             const card = document.getElementById('activity1');
             if (!answer) return;
-            if (answer === 'VOUS') {
-                answers.caesar = answer;
-                showMessage(card, 'Message correctement déchiffré !', true);
 
-                const btn = document.querySelector('#activity1 button.btn');
-                btn.disabled = true;
+            fetch('http://localhost:3000/api/activity1', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ shift, answer })
+            })
+            .then(r => r.json())
+            .then(data => {
+                if (data.success) {
+                    answers.caesar = data.portion;
+                    showMessage(card, 'Message correctement déchiffré !', true);
 
-                const out = document.createElement('div');
-                out.style.marginTop = '10px';
-                out.textContent = `🔒 Portion mot de passe: ${answer}`;
-                card.appendChild(out);
+                    const btn = document.querySelector('#activity1 button.btn');
+                    btn.disabled = true;
 
-                markActivityCompleted(1);
-            } else {
+                    const out = document.createElement('div');
+                    out.style.marginTop = '10px';
+                    out.textContent = `🔒 Portion mot de passe: ${data.portion}`;
+                    card.appendChild(out);
+
+                    markActivityCompleted(1);
+                } else {
+                    applyPenalty();
+                    showMessage(card, 'Ce n\'est pas le bon mot…', false);
+                }
+            })
+            .catch(err => {
+                console.error(err);
                 applyPenalty();
-                showMessage(card, 'Ce n\'est pas le bon mot…', false);
-            }
+                showMessage(card, 'Erreur serveur.', false);
+            });
         }
 
         // 2. Phishing
@@ -871,23 +884,36 @@
         }
         function checkPhishing() {
             const card = document.getElementById('activity2');
-            if (selectedEmailId === 1) {
-                answers.phishing = selectedEmailId;
-                showMessage(card, 'Correct ! C\'est bien un phishing.', true);
+            fetch('http://localhost:3000/api/activity2', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ selected: selectedEmailId })
+            })
+            .then(r => r.json())
+            .then(data => {
+                if (data.success) {
+                    answers.phishing = data.portion;
+                    showMessage(card, 'Correct ! C\'est bien un phishing.', true);
 
-                const btn = document.querySelector('#activity2 button.btn');
-                btn.disabled = true;
+                    const btn = document.querySelector('#activity2 button.btn');
+                    btn.disabled = true;
 
-                const out = document.createElement('div');
-                out.style.marginTop = '10px';
-                out.textContent = `🔒 Portion mot de passe: ${answers.phishing}`;
-                card.appendChild(out);
+                    const out = document.createElement('div');
+                    out.style.marginTop = '10px';
+                    out.textContent = `🔒 Portion mot de passe: ${data.portion}`;
+                    card.appendChild(out);
 
-                markActivityCompleted(2);
-            } else {
+                    markActivityCompleted(2);
+                } else {
+                    applyPenalty();
+                    showMessage(card, 'Non, ce n\'est pas celui-là.', false);
+                }
+            })
+            .catch(err => {
+                console.error(err);
                 applyPenalty();
-                showMessage(card, 'Non, ce n\'est pas celui-là.', false);
-            }
+                showMessage(card, 'Erreur serveur.', false);
+            });
         }
 
         // 3. Sécurité des mots de passe
@@ -902,26 +928,38 @@
         }
         function checkPasswordSecurity() {
             const card = document.getElementById('activity3');
-            const correct = [1, 4, 2, 5, 3];
-            if (JSON.stringify(passwordSelectionOrder) === JSON.stringify(correct)) {
-                const raw = document.getElementById('pwd3').textContent.trim();
-                answers.strongestPassword = raw.replace(/^\S+\s*/, '');
-                showMessage(card, 'Bien classés !', true);
+            fetch('http://localhost:3000/api/activity3', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ order: passwordSelectionOrder })
+            })
+            .then(r => r.json())
+            .then(data => {
+                if (data.success) {
+                    answers.strongestPassword = data.portion;
+                    showMessage(card, 'Bien classés !', true);
 
-                const btn = document.querySelector('#activity3 button.btn');
-                btn.disabled = true;
+                    const btn = document.querySelector('#activity3 button.btn');
+                    btn.disabled = true;
 
-                const out = document.createElement('div');
-                out.style.marginTop = '10px';
-                out.textContent = `🔒 Portion mot de passe: ${answers.strongestPassword}`;
-                card.appendChild(out);
+                    const out = document.createElement('div');
+                    out.style.marginTop = '10px';
+                    out.textContent = `🔒 Portion mot de passe: ${data.portion}`;
+                    card.appendChild(out);
 
-                markActivityCompleted(3);
-            } else {
+                    markActivityCompleted(3);
+                } else {
+                    applyPenalty();
+                    showMessage(card, 'L\'ordre n\'est pas correct, réinitialisation...', false);
+                    setTimeout(resetActivity3, 500);
+                }
+            })
+            .catch(err => {
+                console.error(err);
                 applyPenalty();
-                showMessage(card, 'L\'ordre n\'est pas correct, réinitialisation...', false);
+                showMessage(card, 'Erreur serveur.', false);
                 setTimeout(resetActivity3, 500);
-            }
+            });
         }
 
         // 4. OSINT
@@ -930,23 +968,36 @@
             const m = parseInt(document.getElementById('birth-month').value,10);
             const y = parseInt(document.getElementById('birth-year').value,10);
             const card = document.getElementById('activity4');
-            if (d===15 && m===8 && y===1987) {
-                answers.osint = `${String(d).padStart(2,'0')}${String(m).padStart(2,'0')}${y}`;
-                showMessage(card, 'Date correctement trouvée !', true);
+            fetch('http://localhost:3000/api/activity4', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ day: d, month: m, year: y })
+            })
+            .then(r => r.json())
+            .then(data => {
+                if (data.success) {
+                    answers.osint = data.portion;
+                    showMessage(card, 'Date correctement trouvée !', true);
 
-                const btn = document.querySelector('#activity4 button.btn');
-                btn.disabled = true;
+                    const btn = document.querySelector('#activity4 button.btn');
+                    btn.disabled = true;
 
-                const out = document.createElement('div');
-                out.style.marginTop = '10px';
-                out.textContent = `🔒 Portion mot de passe: ${answers.osint}`;
-                card.appendChild(out);
+                    const out = document.createElement('div');
+                    out.style.marginTop = '10px';
+                    out.textContent = `🔒 Portion mot de passe: ${data.portion}`;
+                    card.appendChild(out);
 
-                markActivityCompleted(4);
-            } else {
+                    markActivityCompleted(4);
+                } else {
+                    applyPenalty();
+                    showMessage(card, 'Ça ne correspond pas.', false);
+                }
+            })
+            .catch(err => {
+                console.error(err);
                 applyPenalty();
-                showMessage(card, 'Ça ne correspond pas.', false);
-            }
+                showMessage(card, 'Erreur serveur.', false);
+            });
         }
 
         // Finale
@@ -958,34 +1009,33 @@
         }
         async function finalCheck() {
             const input    = document.getElementById('session-password').value.trim();
-            const expected = answers.caesar + answers.phishing + answers.strongestPassword + answers.osint;
-            if (input === expected && selectedSuspect === 1) {
-                const duration = totalTime - timeLeft;                // secondes écoulées
-                const team     = localStorage.getItem('cyberTeam');   // nom de l’équipe
+            const duration = totalTime - timeLeft;
+            const team     = localStorage.getItem('cyberTeam');
 
-                try {
-                    const res = await fetch('http://localhost:3000/api/save-score', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ team, duration })
-                    });
-                    if (!res.ok) throw new Error(res.status);
-                    const { badge } = await res.json();
-
-                    // Affiche la médaille
-                    showBadge(badge);
-
-                    // Après un délai, transition vers le classement
+            try {
+                const res = await fetch('http://localhost:3000/api/verify-final', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        team,
+                        duration,
+                        password: input,
+                        suspect: selectedSuspect,
+                        answers
+                    })
+                });
+                const data = await res.json();
+                if (data.success) {
+                    showBadge(data.badge);
                     setTimeout(() => fadeTo('scores.html'), 3000);
-
-                    } catch (err) {
-                    console.error(err);
-                    alert('Succès local, mais impossible d’enregistrer votre score.');
+                } else {
+                    applyPenalty();
+                    alert('❌ Mot de passe ou suspect incorrect. Réessayez.');
                 }
-
-            } else {
+            } catch (err) {
+                console.error(err);
                 applyPenalty();
-                alert('❌ Mot de passe ou suspect incorrect. Réessayez.');
+                alert('Erreur serveur.');
             }
         }
 
