@@ -173,5 +173,26 @@ app.post('/api/verify-final', async (req, res) => {
 // Santé du service
 app.get('/api/health', (req, res) => res.json({ status: 'OK' }));
 
-const port = process.env.PORT || 3000;
-app.listen(port, () => console.log(`Serveur Express démarré sur http://localhost:${port}`));
+async function ensureBadgeColumn() {
+  try {
+    const check = await pool.query(
+      "SELECT column_name FROM information_schema.columns WHERE table_name = 'scores' AND column_name = 'badge'"
+    );
+    if (check.rowCount === 0) {
+      await pool.query('ALTER TABLE scores ADD COLUMN badge VARCHAR(20)');
+      console.log('Badge column added to scores table');
+    }
+  } catch (err) {
+    console.error('Error ensuring badge column', err);
+  }
+}
+
+async function start() {
+  await ensureBadgeColumn();
+  const port = process.env.PORT || 3000;
+  app.listen(port, () =>
+    console.log(`Serveur Express démarré sur http://localhost:${port}`)
+  );
+}
+
+start();
