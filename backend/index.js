@@ -38,6 +38,62 @@ app.get('/api/scores', async (req,res) => {
   }
 });
 
+// --- Nouveaux endpoints de validation des activités ---
+
+// 1. Code César
+app.post('/api/activity1', (req, res) => {
+  const { shift, answer } = req.body;
+  if (typeof shift !== 'number' || !answer) {
+    return res.status(400).json({ success: false });
+  }
+  const encrypted = 'YRXV DYHC WURLV MRXUV SRXU PH WURXYHU';
+  const decoded = [...encrypted].map(c => {
+    if (!/[A-Z]/.test(c)) return c;
+    return String.fromCharCode((c.charCodeAt(0) - 65 - shift + 26) % 26 + 65);
+  }).join('');
+  const first = decoded.split(' ')[0].toUpperCase();
+  if (first === 'VOUS' && answer.trim().toUpperCase() === 'VOUS') {
+    return res.json({ success: true, portion: 'VOUS' });
+  }
+  res.json({ success: false });
+});
+
+// 2. Phishing
+app.post('/api/activity2', (req, res) => {
+  const { selected } = req.body;
+  if (typeof selected !== 'number') {
+    return res.status(400).json({ success: false });
+  }
+  if (selected === 1) return res.json({ success: true, portion: '1' });
+  res.json({ success: false });
+});
+
+// 3. Sécurité des mots de passe
+app.post('/api/activity3', (req, res) => {
+  const { order } = req.body;
+  if (!Array.isArray(order)) {
+    return res.status(400).json({ success: false });
+  }
+  const correct = [1, 4, 2, 5, 3];
+  if (JSON.stringify(order.map(Number)) === JSON.stringify(correct)) {
+    return res.json({ success: true, portion: 'Th0m@s_D4r4nd!2024#Secure' });
+  }
+  res.json({ success: false });
+});
+
+// 4. OSINT
+app.post('/api/activity4', (req, res) => {
+  const { day, month, year } = req.body;
+  const d = parseInt(day, 10);
+  const m = parseInt(month, 10);
+  const y = parseInt(year, 10);
+  if (d === 15 && m === 8 && y === 1987) {
+    return res.json({ success: true, portion: '15081987' });
+  }
+  res.json({ success: false });
+});
+
+
 // Endpoint pour sauver un score
 app.post('/api/save-score', async (req, res) => {
   const { team, duration } = req.body;
@@ -71,6 +127,47 @@ app.post('/api/save-score', async (req, res) => {
     console.error(err);
     res.status(500).json({ error: 'Erreur serveur' });
   }
+});
+
+// Validation finale et enregistrement du score
+app.post('/api/verify-final', async (req, res) => {
+  const { team, duration, password, suspect, answers } = req.body;
+  if (!team || typeof duration !== 'number' || !password || !answers) {
+    return res.status(400).json({ error: 'Données invalides' });
+  }
+
+  const expected =
+    String(answers.caesar || '') +
+    String(answers.phishing || '') +
+    String(answers.strongestPassword || '') +
+    String(answers.osint || '');
+
+  if (password === expected && suspect === 1) {
+    let badge = '';
+    if (duration < 120)      badge = 'or';
+    else if (duration < 300) badge = 'argent';
+    else if (duration < 480) badge = 'bronze';
+
+    try {
+      const { rows } = await pool.query(
+        'SELECT 1 FROM scores WHERE team_name = $1',
+        [team]
+      );
+      if (rows.length > 0) {
+        return res.status(409).json({ error: 'Nom d\'équipe déjà utilisé' });
+      }
+      await pool.query(
+        'INSERT INTO scores (team_name, duration_seconds, badge) VALUES ($1, $2, $3)',
+        [team, duration, badge]
+      );
+      return res.status(201).json({ success: true, badge });
+    } catch (err) {
+      console.error(err);
+      return res.status(500).json({ error: 'Erreur serveur' });
+    }
+  }
+
+  res.json({ success: false });
 });
 
 // Santé du service
