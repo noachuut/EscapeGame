@@ -134,6 +134,8 @@
             text-transform: uppercase;
             letter-spacing: 1px;
             box-shadow: 0 4px 15px rgba(0, 255, 65, 0.3);
+            position: relative;
+            overflow: hidden;
         }
 
         .enter-btn:hover {
@@ -146,6 +148,23 @@
             transform: translateY(0);
             box-shadow: 0 2px 10px rgba(0, 255, 65, 0.3);
         }
+
+        .ripple {
+            position: absolute;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.4);
+            transform: scale(0);
+            pointer-events: none;
+            animation: ripple 0.6s linear;
+        }
+        @keyframes ripple { to { transform: scale(4); opacity: 0; } }
+
+        .fade-overlay {
+            position: fixed; inset: 0; background: #000;
+            opacity: 0; pointer-events: none;
+            transition: opacity 0.6s; z-index: 3000;
+        }
+        .fade-overlay.active { opacity: 1; }
 
         .status-bar {
             position: absolute;
@@ -228,6 +247,7 @@
 </head>
 <body>
     <div class="matrix-bg" id="matrixBg"></div>
+    <div id="fadeOverlay" class="fade-overlay"></div>
     
     <div class="terminal-container">
         <div class="screen-header">
@@ -308,8 +328,8 @@
 
             setTimeout(() => {
                 if (entered === expected) {
-                    // succès : redirection vers le classement
-                    window.location.href = 'scores.html';
+                    // succès : transition vers le classement
+                    fadeTo('scores.html');
                 } else {
                     // échec : message et reset
                     alert('❌ Mot de passe incorrect.');
@@ -321,6 +341,28 @@
             }, 1000);
         }
 
+        function attachRipples() {
+            document.querySelectorAll('button').forEach(btn => {
+                btn.addEventListener('click', e => {
+                    const r = document.createElement('span');
+                    r.className = 'ripple';
+                    const rect = btn.getBoundingClientRect();
+                    const size = Math.max(rect.width, rect.height);
+                    r.style.width = r.style.height = size + 'px';
+                    r.style.left = (e.clientX - rect.left - size/2) + 'px';
+                    r.style.top  = (e.clientY - rect.top  - size/2) + 'px';
+                    btn.appendChild(r);
+                    setTimeout(() => r.remove(), 600);
+                });
+            });
+        }
+
+        function fadeTo(url) {
+            const ov = document.getElementById('fadeOverlay');
+            ov.classList.add('active');
+            setTimeout(() => { window.location.href = url; }, 600);
+        }
+
         // Touche Entrée déclenche handleLogin()
         document.getElementById('passwordInput').addEventListener('keypress', e => {
             if (e.key === 'Enter') handleLogin();
@@ -330,6 +372,7 @@
         createMatrixEffect();
         updateTime();
         setInterval(updateTime, 1000);
+        attachRipples();
     </script>
 </body>
 </html>
