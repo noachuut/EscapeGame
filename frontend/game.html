@@ -816,6 +816,10 @@
                 // Calculez et stockez ici le mot de passe final
                 const finalPwd = answers.caesar + answers.phishing + answers.strongestPassword + answers.osint;
                 localStorage.setItem('sessionPwd', finalPwd);
+                // Conservez la durée pour l'enregistrement du score
+                const duration = totalTime - timeLeft;
+                localStorage.setItem('cyberDuration', duration);
+
                 // Petite pause pour laisser l’UI se mettre à jour
                 setTimeout(() => {
                 fadeTo('unlock.html');
