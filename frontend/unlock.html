@@ -316,20 +316,33 @@
         }
 
         // Gestion de la connexion
-        function handleLogin() {
-            const input = document.getElementById('passwordInput');
-            const entered = input.value.trim();
+        async function handleLogin() {
+            const input    = document.getElementById('passwordInput');
+            const entered  = input.value.trim();
             const expected = localStorage.getItem('sessionPwd') || '';
+            const team     = localStorage.getItem('cyberTeam') || '';
+            const duration = parseInt(localStorage.getItem('cyberDuration') || '0', 10);
 
             // feedback visuel
             const btn = document.querySelector('.enter-btn');
             btn.disabled = true;
             btn.textContent = 'VÉRIFICATION...';
 
-            setTimeout(() => {
+            setTimeout(async () => {
                 if (entered === expected) {
-                    // succès : transition vers le classement
-                    fadeTo('scores.html');
+                    try {
+                        await fetch('http://localhost:3000/api/save-score', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ team, duration })
+                        });
+                        // succès : transition vers le classement
+                        fadeTo('scores.html');
+                    } catch (err) {
+                        alert('Erreur lors de l\'enregistrement.');
+                        btn.disabled = false;
+                        btn.textContent = 'ENTRER';
+                    }
                 } else {
                     // échec : message et reset
                     alert('❌ Mot de passe incorrect.');
