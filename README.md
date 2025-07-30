@@ -77,7 +77,7 @@ npm start
 
 #### Serveur statique indépendant
 ```bash
-cd public
+cd frontend
 npx serve .
 # → http://localhost:5000/index.html
 ```
