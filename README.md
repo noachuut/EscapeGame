@@ -90,7 +90,7 @@ npx serve .
 2. **Jeu** (`game.html`)  
    - Résolvez **4 activités** avant la fin du timer  
 3. **Fin**  
-   - Mot de passe correct + choix du suspect → enregistrement du score  
+   - Mot de passe correct → enregistrement du score  
 4. **Classement** (`scores.html`)  
    - Affichage automatique du **Top 10** des meilleurs temps  
 
