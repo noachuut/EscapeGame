@@ -122,13 +122,4 @@ npx serve .
   badge VARCHAR(20),
   created_at TIMESTAMPTZ DEFAULT NOW()
 
-Si vous avez démarré la base de données avant l'ajout de la colonne `badge`,
-ajoutez-la manuellement avec :
-
-```sql
-ALTER TABLE scores ADD COLUMN badge VARCHAR(20);
-```
-ou recréez le conteneur PostgreSQL (`docker-compose down -v` puis `docker-compose up -d db`).
-
-
 Prêt à relever le défi ? Branchez-vous, formez votre équipe et que l’enquête commence ! 🔐🎉  
