@@ -62,7 +62,7 @@ cd backend
 ```bash
 npm install
 ```
-#### Configurez vos variables d’environnement :
+#### Configurez vos variables d’environnement (pas besoin pour l'instant):
 ```bash
 cp .env.example .env
 ```
