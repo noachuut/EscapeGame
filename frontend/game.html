@@ -471,16 +471,14 @@
                 <div class="activity-title">
                     <span class="activity-status" id="status1">1</span>
                     🔐 Activité 1: Décrypter le message
-                </div>
-                <div class="activity-description">
+                </div><div class="activity-description">
                     <p>Thomas a griffonné ce message chiffré sur son cahier avant de disparaître:</p>
-                    <div style="background: #222; padding: 15px; border-radius: 5px; margin: 10px 0; font-family: monospace; font-size: 1.2em; text-align: center; color: #ff6666;">
-                        "YRXV DYHC WURLV MRXUV SRXU PH WURXYHU"
+ <div id="caesar-message" style="background: #222; padding: 15px; border-radius: 5px; margin: 10px 0; font-family: monospace; font-size: 1.2em; text-align: center; color: #ff6666;"></div>
                     </div>
                     <p>Indice: Thomas adorait Jules César et ses méthodes de chiffrement...</p>
                 </div>
                 <div class="input-group">
-                    <label for="caesar-shift">Décalage (1-25):</label>
+                    <label for="caesar-shift">Décalage:</label>
                     <input type="number" id="caesar-shift" min="1" max="25" placeholder="Entrez le décalage">
                 </div>
                 <div class="input-group">
@@ -507,29 +505,7 @@
                 <div class="activity-description">
                     <p>Thomas avait reçu plusieurs emails suspects. Identifiez lequel est un phishing :</p>
                     
-                    <div class="phishing-email" onclick="selectEmail(1)">
-                        <div class="email-header">
-                            <strong>De:</strong> support@paypal-security.com<br>
-                            <strong>Objet:</strong> Action requise: Vérifiez votre compte immédiatement
-                        </div>
-                        <p>Cher client, votre compte PayPal a été temporairement suspendu suite à une activité suspecte. Cliquez sur ce lien pour vérifier vos informations: http://paypal-verification.secure-update.com</p>
-                    </div>
-
-                    <div class="phishing-email" onclick="selectEmail(2)">
-                        <div class="email-header">
-                            <strong>De:</strong> noreply@lycee-saintemarie.edu<br>
-                            <strong>Objet:</strong> Relevé de notes du trimestre
-                        </div>
-                        <p>Bonjour Thomas, votre relevé de notes du 2ème trimestre est disponible sur l'ENT. Connectez-vous avec vos identifiants habituels pour le consulter.</p>
-                    </div>
-
-                    <div class="phishing-email" onclick="selectEmail(3)">
-                        <div class="email-header">
-                            <strong>De:</strong> contact@netflix.com<br>
-                            <strong>Objet:</strong> Nouveau contenu disponible
-                        </div>
-                        <p>Découvrez les nouvelles séries et films ajoutés cette semaine sur Netflix. Bonne découverte !</p>
-                    </div>
+                    <div id="phishing-emails"></div>
                 </div>
                 <div class="input-group">
                     <label>Email sélectionné: <span id="selectedEmail">Aucun</span></label>
@@ -550,21 +526,7 @@
                 <div class="activity-description">
                     <p>Thomas a noté plusieurs mots de passe. Classez-les du MOINS sécurisé au PLUS sécurisé (cliquez pour sélectionner dans l'ordre) :</p>
                     
-                    <div class="password-item" onclick="selectPassword(1)" id="pwd1">
-                        🔑 123456789
-                    </div>
-                    <div class="password-item" onclick="selectPassword(2)" id="pwd2">
-                        🔑 MotDePasse2024!
-                    </div>
-                    <div class="password-item" onclick="selectPassword(3)" id="pwd3">
-                        🔑 Th0m@s_D4r4nd!2024#Secure
-                    </div>
-                    <div class="password-item" onclick="selectPassword(4)" id="pwd4">
-                        🔑 thomas123
-                    </div>
-                    <div class="password-item" onclick="selectPassword(5)" id="pwd5">
-                        🔑 J'aiMe-Les_Maths&LaPhysique2024!
-                    </div>
+                    <div id="password-list"></div>
                 </div>
                 <div class="input-group">
                     <label>Ordre sélectionné:</label>
@@ -588,14 +550,7 @@
                 <div class="activity-description">
                     <p>Thomas avait recherché des infos sur une personne suspecte. Voici ce qu'il a trouvé:</p>
                     <div style="background: #222; padding: 15px; border-radius: 5px; margin: 10px 0;">
-                        <p><strong>Profil suspect:</strong> Marc Dubois</p>
-                        <p><strong>Pseudo réseaux sociaux:</strong> @MarcD_1987</p>
-                        <p><strong>Bio Instagram:</strong> "Né sous le signe du Lion 🦁, passionné de tech"</p>
-                        <p><strong>Post Facebook:</strong> "Il y a 25 ans jour pour jour, je poussais mon premier cri ! 🎂" (posté le 15 août 2024)</p>
-                        <p><strong>LinkedIn:</strong> "Diplômé en 2005, j'avais alors 18 ans"</p>
-                        <p><strong>Commentaire Youtube:</strong> "J'avais 10 ans quand est sorti le premier Harry Potter au cinéma"</p>
-                    </div>
-                    <p>Analysez ces informations pour déduire sa date de naissance exacte.</p>
+ <div id="osint-clues"></div>                   </div>
                 </div>
                 <div class="input-group">
                     <label for="birth-day">Jour:</label>
@@ -678,8 +633,9 @@
         let selectedSuspect = 0;
         let selectedEmailId = 0;
         let passwordSelectionOrder = [];
-        let timeLeft = 600; // 60 minutes
-        const totalTime = timeLeft;
+        let timeLeft    = 3600; // 60 minutes
+        const totalTime = timeLeft; // utilisé comme référence
+        let caesarData = {}; // Variable pour stocker les données de l'activité 1
         let lastUnlocked = 0;
 
 
@@ -843,27 +799,101 @@
         }
 
         // 1. Code César
+        async function loadActivityData() { // Async pour utiliser await
+ try {
+
+                // Charger Activité 1
+                const res1 = await fetch('http://localhost:3000/api/activity1');
+                activityData.caesar = await res1.json();
+                // Afficher le message chiffré dans le nouveau div
+                const encryptedMessageElement = document.querySelector('#activity1 .activity-description div');
+                if (encryptedMessageElement) {
+                    encryptedMessageElement.textContent = activityData.caesar.message;
+                }
+
+                // Charger Activité 2
+                const res2 = await fetch('http://localhost:3000/api/activity2');
+                activityData.phishing = await res2.json();
+                const phishingEmailsContainer = document.getElementById('phishing-emails');
+                phishingEmailsContainer.innerHTML = ''; // Clear previous content
+                activityData.phishing.emails.forEach((email, index) => {
+                    const emailDiv = document.createElement('div');
+                    emailDiv.className = 'phishing-email';
+                    emailDiv.onclick = () => selectEmail(index + 1);
+                    emailDiv.innerHTML = `
+                        <div class="email-header">
+                            <strong>De:</strong> ${email.from}<br>
+                            <strong>Objet:</strong> ${email.subject}
+                        </div>
+                        <p>${email.body}</p>
+                    `;
+                    phishingEmailsContainer.appendChild(emailDiv);
+                });
+
+                // Charger Activité 3
+                const res3 = await fetch('http://localhost:3000/api/activity3');
+ activityData.passwords = await res3.json();
+                const passwordListContainer = document.getElementById('password-list');
+                passwordListContainer.innerHTML = ''; // Clear previous content
+                activityData.passwords.passwords.forEach((password, index) => {
+                    const passwordDiv = document.createElement('div');
+                    passwordDiv.className = 'password-item';
+                    passwordDiv.onclick = () => selectPassword(index + 1);
+                    passwordDiv.id = `pwd${index + 1}`;
+                    passwordDiv.innerHTML = `🔑 ${password}`;
+                    passwordListContainer.appendChild(passwordDiv);
+                });
+
+                // Charger Activité 4
+                const res4 = await fetch('http://localhost:3000/api/activity4');
+                activityData.osint = await res4.json();
+                const osintCluesContainer = document.getElementById('osint-clues');
+                osintCluesContainer.innerHTML = ''; // Clear previous content
+                activityData.osint.clues.forEach(clue => {
+                    const clueElement = document.createElement('p');
+                    clueElement.innerHTML = `<strong>${clue.source}:</strong> ${clue.content}`;
+                    osintCluesContainer.appendChild(clueElement);
+                });
+            } catch (err) {
+                console.error("Erreur lors du chargement des données d'activité:", err);
+                // Gérer l'erreur (afficher un message à l'utilisateur, etc.)
+            }
+        }
+
         function checkCaesar() {
             const shift = parseInt(document.getElementById('caesar-shift').value, 10);
-            const output = [..."YRXV DYHC WURLV MRXUV SRXU PH WURXYHU"].map(c => {
+            const answer = document.getElementById('caesar-answer').value.trim().toUpperCase(); // Convertir en majuscules pour la comparaison
+            const card = document.getElementById('activity1');
+
+            if (isNaN(shift) || shift < 1 || shift > 25) {
+                showMessage(card, 'Veuillez entrer un décalage valide (1-25).', false);
+                return;
+            }
+            if (!answer) {
+                showMessage(card, 'Veuillez entrer votre réponse.', false);
+                return;
+            }
+
+            // Déchiffrer le message avec le décalage entré par l'utilisateur (pour l'affichage immédiat)
+            const decoded = [...caesarData.message].map(c => {
                 if (!/[A-Z]/.test(c)) return c;
                 return String.fromCharCode((c.charCodeAt(0)-65 - shift + 26) % 26 + 65);
             }).join('');
-            document.getElementById('caesar-result').value = output;
-            const answer = document.getElementById('caesar-answer').value.trim();
-            const card = document.getElementById('activity1');
-            if (!answer) return;
+
+            // Afficher le message déchiffré dans le champ de résultat
+            document.getElementById('caesar-result').value = decoded;
+
 
             fetch('http://localhost:3000/api/activity1', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ shift, answer })
+                body: JSON.stringify({ encryptedMessage: caesarData.message, shift, answer })
             })
             .then(r => r.json())
             .then(data => {
                 if (data.success) {
                     answers.caesar = data.portion;
-                    showMessage(card, 'Message correctement déchiffré !', true);
+                    showMessage(card, `Message correctement déchiffré ! Le premier mot est "${data.portion}"`, true);
 
                     const btn = document.querySelector('#activity1 button.btn');
                     btn.disabled = true;
@@ -876,7 +906,7 @@
                     markActivityCompleted(1);
                 } else {
                     applyPenalty();
-                    showMessage(card, 'Ce n\'est pas le bon mot…', false);
+                    showMessage(card, 'Ce n\'est pas le bon mot ou le décalage est incorrect…', false);
                 }
             })
             .catch(err => {
@@ -900,7 +930,7 @@
             fetch('http://localhost:3000/api/activity2', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ selected: selectedEmailId })
+                body: JSON.stringify({ selected: selectedEmailId, emailData: activityData.phishing })
             })
             .then(r => r.json())
             .then(data => {
@@ -920,6 +950,7 @@
                 } else {
                     applyPenalty();
                     showMessage(card, 'Non, ce n\'est pas celui-là.', false);
+                    // L'activité 2 n'a pas besoin de reset visuel particulier
                 }
             })
             .catch(err => {
@@ -932,10 +963,10 @@
         // 3. Sécurité des mots de passe
         function selectPassword(id) {
             if (!passwordSelectionOrder.includes(id)) {
-                passwordSelectionOrder.push(id);
+                passwordSelectionOrder.push(id); // Store 1-based index
                 document.getElementById('pwd' + id).classList.add('selected');
                 document.getElementById('pwd' + id).style.borderColor = '#0f0';
-                document.getElementById('passwordOrder').textContent = passwordSelectionOrder.join(', ');
+                document.getElementById('passwordOrder').textContent = passwordSelectionOrder.map(i => activityData.passwords.passwords[i-1]).join(', ');
             }
             if (passwordSelectionOrder.length === 5) document.getElementById('passwordBtn').disabled = false;
         }
@@ -944,7 +975,7 @@
             fetch('http://localhost:3000/api/activity3', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ order: passwordSelectionOrder })
+                body: JSON.stringify({ order: passwordSelectionOrder, passwordData: activityData.passwords })
             })
             .then(r => r.json())
             .then(data => {
@@ -978,13 +1009,13 @@
         // 4. OSINT
         function checkOSINT() {
             const d = parseInt(document.getElementById('birth-day').value,10);
-            const m = parseInt(document.getElementById('birth-month').value,10);
+            const m = parseInt(document.getElementById('birth-month').value,10); // Month is 1-based from the select value
             const y = parseInt(document.getElementById('birth-year').value,10);
             const card = document.getElementById('activity4');
-            fetch('http://localhost:3000/api/activity4', {
+            fetch('http://localhost:3000/api/activity4', { // Should be POST for verification
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ day: d, month: m, year: y })
+                body: JSON.stringify({ day: d, month: m, year: y, osintData: activityData.osint })
             })
             .then(r => r.json())
             .then(data => {
@@ -1088,6 +1119,7 @@
         // Initialisation
         window.onload = () => {
             initMatrix();
+            loadActivityData(); // Charger les données de toutes les activités au démarrage
             updateTimer();
             updateProgress();        // met à jour locks/completed dès le départ
             document.getElementById('activity1').classList.add('visible');
