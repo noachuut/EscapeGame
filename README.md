@@ -109,6 +109,8 @@ npx serve .
 | GET     | `/api/scores`        | Récupère le Top 10 `{ team_name, duration_seconds, created_at, badge }` |
 | DELETE  | `/api/scores`        | Vide la table `scores` (usage administrative)              |
 
+📚 Une documentation Swagger est disponible sur [`/api/docs`](http://localhost:3000/api/docs) pour faciliter l'ajout de nouvelles routes.
+
 ---
 
 ## 💾 Base de données

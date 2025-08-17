@@ -3,14 +3,53 @@ require('dotenv').config();
 const express = require('express');
 const cors    = require('cors');
 const pool    = require('./db');
+const swaggerJsdoc = require('swagger-jsdoc');
+const swaggerUi = require('swagger-ui-express');
 
 const app = express();
 app.use(cors());
 app.use(express.json());
 
+const swaggerSpec = swaggerJsdoc({
+  definition: {
+    openapi: '3.0.0',
+    info: {
+      title: 'Cyber Detective API',
+      version: '1.0.0',
+    },
+  },
+  apis: ['./**/*.js'],
+});
 
-// endpoint pour verifier si le nom d'equipe existe déja ou pas 
+app.use('/api/docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
+
+// endpoint pour verifier si le nom d'equipe existe déja ou pas
+/**
+ * @swagger
+ * /api/check-team:
+ *   get:
+ *     summary: Vérifie si un nom d'équipe existe déjà
+ *     parameters:
+ *       - in: query
+ *         name: team
+ *         schema:
+ *           type: string
+ *         required: true
+ *         description: Nom de l'équipe à vérifier
+ *     responses:
+ *       200:
+ *         description: Indique si le nom existe
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 exists:
+ *                   type: boolean
+ *       400:
+ *         description: Requête invalide
+ */
 app.get('/api/check-team', async (req, res) => {
   const team = req.query.team;
   if (!team) return res.status(400).end();
@@ -22,7 +61,23 @@ app.get('/api/check-team', async (req, res) => {
 });
 
 
-
+/**
+ * @swagger
+ * /api/scores:
+ *   get:
+ *     summary: Récupère le Top 10 des scores
+ *     responses:
+ *       200:
+ *         description: Liste des scores triés
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 type: object
+ *       500:
+ *         description: Erreur serveur
+ */
 app.get('/api/scores', async (req,res) => {
   try {
     const { rows } = await pool.query(
@@ -41,6 +96,26 @@ app.get('/api/scores', async (req,res) => {
 // --- Nouveaux endpoints de validation des activités ---
 
 // 1. Code César
+/**
+ * @swagger
+ * /api/activity1:
+ *   post:
+ *     summary: Valide l'activité du Code César
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               shift:
+ *                 type: number
+ *               answer:
+ *                 type: string
+ *     responses:
+ *       200:
+ *         description: Résultat de la validation
+ */
 app.post('/api/activity1', (req, res) => {
   const { shift, answer } = req.body;
   if (typeof shift !== 'number' || !answer) {
@@ -59,6 +134,24 @@ app.post('/api/activity1', (req, res) => {
 });
 
 // 2. Phishing
+/**
+ * @swagger
+ * /api/activity2:
+ *   post:
+ *     summary: Valide l'activité de phishing
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               selected:
+ *                 type: number
+ *     responses:
+ *       200:
+ *         description: Résultat de la validation
+ */
 app.post('/api/activity2', (req, res) => {
   const { selected } = req.body;
   if (typeof selected !== 'number') {
@@ -69,6 +162,26 @@ app.post('/api/activity2', (req, res) => {
 });
 
 // 3. Sécurité des mots de passe
+/**
+ * @swagger
+ * /api/activity3:
+ *   post:
+ *     summary: Valide l'activité sur les mots de passe
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               order:
+ *                 type: array
+ *                 items:
+ *                   type: integer
+ *     responses:
+ *       200:
+ *         description: Résultat de la validation
+ */
 app.post('/api/activity3', (req, res) => {
   const { order } = req.body;
   if (!Array.isArray(order)) {
@@ -82,6 +195,28 @@ app.post('/api/activity3', (req, res) => {
 });
 
 // 4. OSINT
+/**
+ * @swagger
+ * /api/activity4:
+ *   post:
+ *     summary: Valide l'activité OSINT
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               day:
+ *                 type: string
+ *               month:
+ *                 type: string
+ *               year:
+ *                 type: string
+ *     responses:
+ *       200:
+ *         description: Résultat de la validation
+ */
 app.post('/api/activity4', (req, res) => {
   const { day, month, year } = req.body;
   const d = parseInt(day, 10);
@@ -95,6 +230,30 @@ app.post('/api/activity4', (req, res) => {
 
 
 // Endpoint pour sauver un score
+/**
+ * @swagger
+ * /api/save-score:
+ *   post:
+ *     summary: Enregistre un score d'équipe
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               team:
+ *                 type: string
+ *               duration:
+ *                 type: number
+ *     responses:
+ *       201:
+ *         description: Score enregistré
+ *       400:
+ *         description: Données invalides
+ *       409:
+ *         description: Nom d'équipe déjà utilisé
+ */
 app.post('/api/save-score', async (req, res) => {
   const { team, duration } = req.body;
   if (!team || typeof duration !== 'number') {
@@ -130,6 +289,36 @@ app.post('/api/save-score', async (req, res) => {
 });
 
 // Validation finale et enregistrement du score
+/**
+ * @swagger
+ * /api/verify-final:
+ *   post:
+ *     summary: Valide le mot de passe final et enregistre le score
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               team:
+ *                 type: string
+ *               duration:
+ *                 type: number
+ *               password:
+ *                 type: string
+ *               suspect:
+ *                 type: number
+ *               answers:
+ *                 type: object
+ *     responses:
+ *       201:
+ *         description: Score enregistré
+ *       400:
+ *         description: Données invalides
+ *       409:
+ *         description: Nom d'équipe déjà utilisé
+ */
 app.post('/api/verify-final', async (req, res) => {
   const { team, duration, password, suspect, answers } = req.body;
   if (!team || typeof duration !== 'number' || !password || !answers) {
@@ -171,6 +360,15 @@ app.post('/api/verify-final', async (req, res) => {
 });
 
 // Santé du service
+/**
+ * @swagger
+ * /api/health:
+ *   get:
+ *     summary: Vérifie que le serveur est opérationnel
+ *     responses:
+ *       200:
+ *         description: Serveur en ligne
+ */
 app.get('/api/health', (req, res) => res.json({ status: 'OK' }));
 
 async function ensureBadgeColumn() {
