@@ -18,7 +18,8 @@ const swaggerSpec = swaggerJsdoc({
       version: '1.0.0',
     },
   },
-  apis: ['./**/*.js'],
+  // Scan all JS files except those in node_modules to build swagger docs
+  apis: ['./**/*.js', '!./node_modules/**'],
 });
 
 app.use('/api/docs', swaggerUi.serve);
