@@ -21,7 +21,8 @@ const swaggerSpec = swaggerJsdoc({
   apis: ['./**/*.js'],
 });
 
-app.use('/api/docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
+app.use('/api/docs', swaggerUi.serve);
+app.get('/api/docs', swaggerUi.setup(swaggerSpec));
 
 
 // endpoint pour verifier si le nom d'equipe existe déja ou pas
