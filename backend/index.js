@@ -3,10 +3,24 @@ require('dotenv').config();
 const express = require('express');
 const cors    = require('cors');
 const pool    = require('./db');
+const swaggerJsdoc = require('swagger-jsdoc');
+const swaggerUi = require('swagger-ui-express');
+const path = require('path');
 
 const app = express();
 app.use(cors());
 app.use(express.json());
+
+const swaggerSpec = swaggerJsdoc({
+  definition: {
+    openapi: '3.0.0',
+    info: { title: 'API Documentation', version: '1.0.0' }
+  },
+  apis: [path.join(__dirname, '*.js')],
+  globOptions: { ignore: ['**/node_modules/**'] }
+});
+
+app.use('/api/docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
 
 // endpoint pour verifier si le nom d'equipe existe déja ou pas 
