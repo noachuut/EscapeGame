@@ -16,7 +16,7 @@ const swaggerSpec = swaggerJsdoc({
     openapi: '3.0.0',
     info: { title: 'EscapeGame API Documentation', version: '1.0.0' },
     tags:[
-      {name: 'Activité' , description: "Mini-jeu de l'escape game"},
+      {name: 'Activités' , description: ""},
       {name: 'Scores' , description: 'Classement et Scores'},
       {name: 'Equipes' , description: ''}
     ]
@@ -347,7 +347,7 @@ async function start() {
   await ensureBadgeColumn();
   const port = process.env.PORT || 3000;
   app.listen(port, () =>
-    console.log(`Serveur Express démarré sur http://localhost:${port}`)
+    console.log(`Serveur Express démarré sur http://localhost:${port} \nSwagger disponible à http://localhost:${port}/api/docs`)
   );
 }
 
