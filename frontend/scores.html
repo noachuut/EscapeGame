@@ -33,6 +33,8 @@
   </table>
 
   <script>
+
+    const formatSeconds = s => new Date(s * 1000).toISOString().substr(11, 8);
     async function loadScores() {
       try {
         const res = await fetch('http://localhost:3000/api/scores');
@@ -49,8 +51,8 @@
               <tr>
                 <td>${i + 1}</td>
                 <td>${s.team_name}</td>
-                <td>${s.duration_seconds}</td>
-                <td>${new Date(s.created_at).toLocaleString()}</td>
+                <td>${formatSeconds(s.duration_seconds)}</td>
+                <td>${new Date(s.created_at).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}</td>
                 <td>${icon}</td>
               </tr>
             `;

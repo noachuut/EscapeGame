@@ -26,10 +26,12 @@ app.get('/api/check-team', async (req, res) => {
 app.get('/api/scores', async (req,res) => {
   try {
     const { rows } = await pool.query(
-      `SELECT team_name, duration_seconds, created_at, badge
-       FROM scores
-       ORDER BY duration_seconds ASC, created_at ASC
-       LIMIT 10`
+      `SELECT team_name, duration_seconds, 
+      to_char(created_at, 'HH24:MI') AS created_at,
+      badge
+      FROM scores
+      ORDER BY duration_seconds ASC, created_at ASC
+      LIMIT 10`
     );
     res.json(rows);
   } catch (err) {
@@ -102,9 +104,9 @@ app.post('/api/save-score', async (req, res) => {
   }
 
   let badge = '';
-    if (duration < 120)      badge = 'or';
-    else if (duration < 300) badge = 'argent';
-    else if (duration < 480) badge = 'bronze';
+    if (duration < 600)      badge = 'or';
+    else if (duration < 1200) badge = 'argent';
+    else if (duration < 1800) badge = 'bronze';
 
   try {
     // 1) Vérifier si l'équipe existe déjà
