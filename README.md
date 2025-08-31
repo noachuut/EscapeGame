@@ -8,7 +8,7 @@ Un jeu d’investigation numérique où chaque équipe doit :
 - 📜 **Déchiffrer** un message avec le Code César  
 - 🎣 **Identifier** un email de phishing  
 - 🔒 **Classer** des mots de passe du plus faible au plus robuste  
-- 🔍 **Réaliser** une enquête OSINT pour découvrir une date de naissance  
+- 🔍 **Réaliser** une enquête OSINT 
 
 Le tout contre la montre : 10 minutes pour sauver Thomas !
 

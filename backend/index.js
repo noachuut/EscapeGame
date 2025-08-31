@@ -3,14 +3,58 @@ require('dotenv').config();
 const express = require('express');
 const cors    = require('cors');
 const pool    = require('./db');
+const swaggerJsdoc = require('swagger-jsdoc');
+const swaggerUi = require('swagger-ui-express');
+const path = require('path');
 
 const app = express();
 app.use(cors());
 app.use(express.json());
 
+const swaggerSpec = swaggerJsdoc({
+  definition: {
+    openapi: '3.0.0',
+    info: { title: 'EscapeGame API Documentation', version: '1.0.0' },
+    tags:[
+      {name: 'Activité' , description: "Mini-jeu de l'escape game"},
+      {name: 'Scores' , description: 'Classement et Scores'},
+      {name: 'Equipes' , description: ''}
+    ]
+  },
+  apis: [path.join(__dirname, '*.js')],
+  globOptions: { ignore: ['**/node_modules/**'] }
+});
+
+app.use('/api/docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
+
 
 // endpoint pour verifier si le nom d'equipe existe déja ou pas 
-
+/**
+ * @openapi
+ * /api/check-team:
+ *   
+ *   get:
+ *     tags:  [Equipes]
+ *     summary: Vérifie si un nom d'équipe existe déjà
+ *     parameters:
+ *       - in: query
+ *         name: team
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Indique si l'équipe existe
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 exists:
+ *                   type: boolean
+ *       400:
+ *         description: Requête invalide (paramètre manquant)
+ */
 app.get('/api/check-team', async (req, res) => {
   const team = req.query.team;
   if (!team) return res.status(400).end();
@@ -22,7 +66,29 @@ app.get('/api/check-team', async (req, res) => {
 });
 
 
-
+/**
+ * @openapi
+ * /api/scores:
+ *   get:
+ *     tags : [Scores]
+ *     summary: Récupère le Top 10 des scores
+ *     responses:
+ *       200:
+ *         description: Liste des scores
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 type: object
+ *                 properties:
+ *                   team_name: { type: string }
+ *                   duration_seconds: { type: integer }
+ *                   created_at: { type: string, format: date-time }
+ *                   badge: { type: string, enum: [or, argent, bronze, ""] }
+ *       500:
+ *         description: Erreur serveur
+ */
 app.get('/api/scores', async (req,res) => {
   try {
     const { rows } = await pool.query(
@@ -97,6 +163,40 @@ app.post('/api/activity4', (req, res) => {
 
 
 // Endpoint pour sauver un score
+/**
+ * @openapi
+ * /api/save-score:
+ *   post:
+ *     tags: [Scores]
+ *     summary: Enregistre un score (si le nom d’équipe est libre)
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required: [team, duration]
+ *             properties:
+ *               team: { type: string }
+ *               duration: { type: number, description: "Durée en secondes" }
+ *     responses:
+ *       201:
+ *         description: Score créé
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 badge:
+ *                   type: string
+ *                   enum: [or, argent, bronze, ""]
+ *       409:
+ *         description: Nom d’équipe déjà utilisé
+ *       400:
+ *         description: Données invalides
+ *       500:
+ *         description: Erreur serveur
+ */
 app.post('/api/save-score', async (req, res) => {
   const { team, duration } = req.body;
   if (!team || typeof duration !== 'number') {
@@ -132,8 +232,64 @@ app.post('/api/save-score', async (req, res) => {
 });
 
 // Validation finale et enregistrement du score
+
+/**
+ * @openapi
+ * /api/verify-final:
+ *   post:
+ *     tags: [Activités]
+ *     summary: Vérifie la combinaison finale et enregistre le score
+ *     description: Compare le mot de passe final avec les réponses concaténées aux activités.
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - team
+ *               - duration
+ *               - password
+ *               - answers
+ *             properties:
+ *               team:
+ *                 type: string
+ *                 description: Nom de l'équipe
+ *               duration:
+ *                 type: number
+ *                 description: Temps total en secondes
+ *               password:
+ *                 type: string
+ *                 description: Mot de passe final (concaténation des portions)
+ *               answers:
+ *                 type: object
+ *                 description: Réponses partielles des activités
+ *                 properties:
+ *                   caesar: { type: string }
+ *                   phishing: { type: string }
+ *                   strongestPassword: { type: string }
+ *                   osint: { type: string }
+ *     responses:
+ *       201:
+ *         description: Succès, score enregistré
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success: { type: boolean }
+ *                 badge:
+ *                   type: string
+ *                   enum: [or, argent, bronze, ""]
+ *       409:
+ *         description: Nom d'équipe déjà utilisé
+ *       400:
+ *         description: Données invalides
+ *       500:
+ *         description: Erreur serveur
+ */
 app.post('/api/verify-final', async (req, res) => {
-  const { team, duration, password, suspect, answers } = req.body;
+  const { team, duration, password, answers } = req.body;
   if (!team || typeof duration !== 'number' || !password || !answers) {
     return res.status(400).json({ error: 'Données invalides' });
   }
@@ -144,7 +300,7 @@ app.post('/api/verify-final', async (req, res) => {
     String(answers.strongestPassword || '') +
     String(answers.osint || '');
 
-  if (password === expected && suspect === 1) {
+  if (password === expected ) {
     let badge = '';
     if (duration < 120)      badge = 'or';
     else if (duration < 300) badge = 'argent';
