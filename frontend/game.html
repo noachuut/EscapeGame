@@ -934,21 +934,21 @@
             const index = passwordSelectionOrder.indexOf(id);
 
             if (index === -1) {
-                // 🔹 Pas encore sélectionné → on l’ajoute
+                // Pas encore sélectionné → on l’ajoute
                 passwordSelectionOrder.push(id);
                 document.getElementById('pwd' + id).classList.add('selected');
                 document.getElementById('pwd' + id).style.borderColor = '#0f0';
             } else {
-                // 🔹 Déjà sélectionné → on l’enlève
+                // Déjà sélectionné → on l’enlève
                 passwordSelectionOrder.splice(index, 1);
                 document.getElementById('pwd' + id).classList.remove('selected');
                 document.getElementById('pwd' + id).style.borderColor = ''; // remet la bordure par défaut
             }
 
-            // 🔹 Met à jour l’affichage de l’ordre
+            // Met à jour l’affichage de l’ordre
             document.getElementById('passwordOrder').textContent = passwordSelectionOrder.join(', ');
 
-            // 🔹 Active/désactive le bouton selon la longueur
+            // Active/désactive le bouton selon la longueur
             document.getElementById('passwordBtn').disabled = (passwordSelectionOrder.length !== 5);
         }
 
