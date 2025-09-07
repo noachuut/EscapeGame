@@ -207,7 +207,7 @@ app.post('/api/save-score', async (req, res) => {
     if (duration < 600)      badge = 'or';
     else if (duration < 1200) badge = 'argent';
     else if (duration < 1800) badge = 'bronze';
-
+    
   try {
     // 1) Vérifier si l'équipe existe déjà
     const { rows } = await pool.query(
