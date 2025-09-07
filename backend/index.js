@@ -142,9 +142,9 @@ app.post('/api/activity3', (req, res) => {
   if (!Array.isArray(order)) {
     return res.status(400).json({ success: false });
   }
-  const correct = [1, 4, 2, 5, 3];
+  const correct = [1, 4, 2, 3, 5];
   if (JSON.stringify(order.map(Number)) === JSON.stringify(correct)) {
-    return res.json({ success: true, portion: 'Th0m@s_D4r4nd!2024#Secure' });
+    return res.json({ success: true, portion: 'Secure' });
   }
   res.json({ success: false });
 });
@@ -207,7 +207,7 @@ app.post('/api/save-score', async (req, res) => {
     if (duration < 600)      badge = 'or';
     else if (duration < 1200) badge = 'argent';
     else if (duration < 1800) badge = 'bronze';
-    
+
   try {
     // 1) Vérifier si l'équipe existe déjà
     const { rows } = await pool.query(
