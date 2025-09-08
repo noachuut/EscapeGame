@@ -474,29 +474,39 @@
                 </div>
                 <div class="activity-description">
                     <p>Thomas a griffonné ce message chiffré sur son cahier avant de disparaître:</p>
-                    <div style="background: #222; padding: 15px; border-radius: 5px; margin: 10px 0; font-family: monospace; font-size: 1.2em; text-align: center; color: #ff6666;">
-                        "YRXV DYHC WURLV MRXUV SRXU PH WURXYHU"
+                    <div id="caesar-encrypted"
+                        style="background:#222; padding:15px; border-radius:5px; margin:10px 0;
+                            font-family:monospace; font-size:1.2em; text-align:center; color:#ff6666;">
                     </div>
                     <p>Indice: Thomas adorait Jules César et ses méthodes de chiffrement...</p>
                 </div>
+
                 <div class="input-group">
                     <label for="caesar-shift">Décalage (1-25):</label>
                     <input type="number" id="caesar-shift" min="1" max="25" placeholder="Entrez le décalage">
                 </div>
+
                 <div class="input-group">
                     <label for="caesar-result">Message déchiffré:</label>
                     <input type="text" id="caesar-result" placeholder="Le message apparaîtra ici" readonly>
+                    <button class="btn" onclick="checkCaesar()" style="margin-top: 10px;">Vérifier le déchiffrement</button>
                 </div>
+
                 <div class="input-group">
                     <label for="caesar-answer">Votre réponse (premier mot du message):</label>
                     <input type="text" id="caesar-answer" placeholder="Entrez le premier mot déchiffré">
                 </div>
-                <button class="btn" onclick="checkCaesar()">Vérifier le déchiffrement</button>
+
+                <button class="btn" onclick="confirmCaesar()">Confirmer la sélection</button>
+
                 <button class="hint-button" onclick="toggleHint('hint1')">💡 Besoin d'aide ?</button>
                 <div class="hint-content" id="hint1">
-                    Le code César décale chaque lettre d'un certain nombre de positions dans l'alphabet, par exemple pour un décalage de 5 le A devient F . Essayez différents décalages jusqu'à obtenir un message en français cohérent !
+                    Le code César décale chaque lettre d'un certain nombre de positions dans l'alphabet,
+                    par exemple pour un décalage de 5 le A devient F.
+                    Essayez différents décalages jusqu'à obtenir un message en français cohérent !
                 </div>
             </div>
+
 
             <!-- Activité 2: Phishing -->
             <div class="activity-card locked" id="activity2">
@@ -826,28 +836,49 @@
         // 1. Code César
         function checkCaesar() {
             const shift = parseInt(document.getElementById('caesar-shift').value, 10);
-            const output = [..."YRXV DYHC WURLV MRXUV SRXU PH WURXYHU"].map(c => {
+            if (!shift) return;
+
+            const output = [...currentEncrypted].map(c => {
                 if (!/[A-Z]/.test(c)) return c;
-                return String.fromCharCode((c.charCodeAt(0)-65 - shift + 26) % 26 + 65);
+                return String.fromCharCode((c.charCodeAt(0) - 65 - shift + 26) % 26 + 65);
+            }).join('');
+
+            document.getElementById('caesar-result').value = output;
+        }
+        
+        function confirmCaesar() {
+            const shift = parseInt(document.getElementById('caesar-shift').value, 10);
+            if (!shift) return;
+
+            // Déchiffre comme checkCaesar
+            const output = [...currentEncrypted].map(c => {
+                if (!/[A-Z]/.test(c)) return c;
+                return String.fromCharCode((c.charCodeAt(0) - 65 - shift + 26) % 26 + 65);
             }).join('');
             document.getElementById('caesar-result').value = output;
+
             const answer = document.getElementById('caesar-answer').value.trim();
             const card = document.getElementById('activity1');
-            if (!answer) return;
+            if (!answer) {
+                showMessage(card, "Veuillez entrer une réponse avant de confirmer.", false);
+                return;
+            }
 
+            // Vérifie avec le backend
             fetch('http://localhost:3000/api/activity1', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ shift, answer })
+                body: JSON.stringify({ shift, answer, encrypted: currentEncrypted })
             })
             .then(r => r.json())
             .then(data => {
                 if (data.success) {
                     answers.caesar = data.portion;
-                    showMessage(card, 'Message correctement déchiffré !', true);
+                    showMessage(card, '✅ Réponse confirmée !', true);
 
-                    const btn = document.querySelector('#activity1 button.btn');
-                    btn.disabled = true;
+                    // désactiver les boutons
+                    document.querySelector('#activity1 button.btn[onclick="checkCaesar()"]').disabled = true;
+                    document.querySelector('#activity1 button.btn[onclick="confirmCaesar()"]').disabled = true;
 
                     const out = document.createElement('div');
                     out.style.marginTop = '10px';
@@ -857,15 +888,17 @@
                     markActivityCompleted(1);
                 } else {
                     applyPenalty();
-                    showMessage(card, 'Ce n\'est pas le bon mot…', false);
+                    showMessage(card, '❌ Mauvaise réponse.', false);
                 }
             })
             .catch(err => {
                 console.error(err);
                 applyPenalty();
-                showMessage(card, 'Erreur serveur.', false);
+                showMessage(card, '⚠️ Erreur serveur.', false);
             });
         }
+
+
 
         // 2. Phishing
         function selectEmail(id) {
@@ -1081,7 +1114,28 @@ function checkOSINT() {
             ov.classList.add('active');
             setTimeout(() => { window.location.href = url; }, 600);
         }
+        // Phrase claire
+        const originalMessage = "VOUS AVEZ TROIS JOURS POUR ME TROUVER";
 
+        // Fonction César (chiffrement)
+        function caesarEncrypt(str, shift) {
+        return [...str].map(c => {
+            if (!/[A-Z]/.test(c)) return c;
+            return String.fromCharCode((c.charCodeAt(0)-65 + shift) % 26 + 65);
+        }).join('');
+        }
+
+        // Décalage aléatoire entre 1 et 25
+        const randomShift = Math.floor(Math.random() * 25) + 1;
+
+        // Générer le message chiffré
+        const encryptedMessage = caesarEncrypt(originalMessage, randomShift);
+
+        // Afficher dans l’activité 1
+        document.getElementById("caesar-encrypted").textContent = `"${encryptedMessage}"`;
+
+        // Stocker pour checkCaesar()
+        let currentEncrypted = encryptedMessage;
 
         // Initialisation
         window.onload = () => {
