@@ -515,31 +515,6 @@
                     🎣 Activité 2: Identifier le phishing
                 </div>
                 <div class="activity-description">
-                    <p>Thomas avait reçu plusieurs emails suspects. Identifiez lequel est un phishing :</p>
-                    
-                    <div class="phishing-email" onclick="selectEmail(1)">
-                        <div class="email-header">
-                            <strong>De:</strong> support@paypal-security.com<br>
-                            <strong>Objet:</strong> Action requise: Vérifiez votre compte immédiatement
-                        </div>
-                        <p>Cher client, votre compte PayPal a été temporairement suspendu suite à une activité suspecte. Cliquez sur ce lien pour vérifier vos informations: http://paypal-verification.secure-update.com</p>
-                    </div>
-
-                    <div class="phishing-email" onclick="selectEmail(2)">
-                        <div class="email-header">
-                            <strong>De:</strong> noreply@lycee-saintemarie.edu<br>
-                            <strong>Objet:</strong> Relevé de notes du trimestre
-                        </div>
-                        <p>Bonjour Thomas, votre relevé de notes du 2ème trimestre est disponible sur l'ENT. Connectez-vous avec vos identifiants habituels pour le consulter.</p>
-                    </div>
-
-                    <div class="phishing-email" onclick="selectEmail(3)">
-                        <div class="email-header">
-                            <strong>De:</strong> contact@netflix.com<br>
-                            <strong>Objet:</strong> Nouveau contenu disponible
-                        </div>
-                        <p>Découvrez les nouvelles séries et films ajoutés cette semaine sur Netflix. Bonne découverte !</p>
-                    </div>
                 </div>
                 <div class="input-group">
                     <label>Email sélectionné: <span id="selectedEmail">Aucun</span></label>
@@ -901,16 +876,82 @@
 
 
         // 2. Phishing
-        function selectEmail(id) {
-            selectedEmailId = id;
-            document.querySelectorAll('.phishing-email').forEach((el, idx) => {
-                el.style.borderColor = idx+1===id ? '#00ff41' : '#666';
+        const emails = [
+            {
+                id: 'paypal_phishing',
+                isPhishing: true,
+                from: 'support@paypal-security.com',
+                subject: 'Action requise: Vérifiez votre compte immédiatement',
+                content: 'Cher client, votre compte PayPal a été temporairement suspendu suite à une activité suspecte. Cliquez sur ce lien pour vérifier vos informations: http://paypal-verification.secure-update.com'
+            },
+            {
+                id: 'lycee_legitimate',
+                isPhishing: false,
+                from: 'noreply@lycee-saintemarie.edu',
+                subject: 'Relevé de notes du trimestre',
+                content: 'Bonjour Thomas, votre relevé de notes du 2ème trimestre est disponible sur l\'ENT. Connectez-vous avec vos identifiants habituels pour le consulter.'
+            },
+            {
+                id: 'netflix_legitimate',
+                isPhishing: false,
+                from: 'contact@netflix.com',
+                subject: 'Nouveau contenu disponible',
+                content: 'Découvrez les nouvelles séries et films ajoutés cette semaine sur Netflix. Bonne découverte !'
+            }
+        ];
+
+        //Fonction pour mélanger un tableau
+        function shuffleArray(array) {
+            const shuffled = [...array];
+            for (let i = shuffled.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+            }
+            return shuffled;
+        }
+
+        //Fonction pour générer le HTML des emails
+        function generateEmailsHTML() {
+            const shuffledEmails = shuffleArray(emails);
+            const container = document.querySelector('#activity2 .activity-description');
+            
+            const introText = '<p>Thomas avait reçu plusieurs emails suspects. Identifiez lequel est un phishing :</p>';
+            
+            let emailsHTML = '';
+            shuffledEmails.forEach((email, index) => {
+                const displayIndex = index + 1;
+                emailsHTML += `
+                    <div class="phishing-email" onclick="selectEmail('${email.id}')">
+                        <div class="email-header">
+                            <strong>De:</strong> ${email.from}<br>
+                            <strong>Objet:</strong> ${email.subject}
+                        </div>
+                        <p>${email.content}</p>
+                    </div>
+                `;
             });
-            document.getElementById('selectedEmail').textContent = 'Email ' + id;
+            
+            container.innerHTML = introText + emailsHTML;
+        }
+        function selectEmail(emailId) {
+            selectedEmailId = emailId; 
+            // Mettre à jour l'affichage
+            document.querySelectorAll('.phishing-email').forEach(el => {
+                el.style.borderColor = '#666';
+            });
+            
+            event.target.closest('.phishing-email').style.borderColor = '#00ff41';
+
+            const emailElements = document.querySelectorAll('.phishing-email');
+            const selectedElement = event.target.closest('.phishing-email');
+            const displayIndex = Array.from(emailElements).indexOf(selectedElement) + 1;
+            
+            document.getElementById('selectedEmail').textContent = 'Email ' + displayIndex;
             document.getElementById('phishingBtn').disabled = false;
         }
         function checkPhishing() {
             const card = document.getElementById('activity2');
+            
             fetch('http://localhost:3000/api/activity2', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -920,7 +961,7 @@
             .then(data => {
                 if (data.success) {
                     answers.phishing = data.portion;
-                    showMessage(card, 'Correct ! C\'est bien un phishing.', true);
+                    showMessage(card, 'Correct ! C\'est bien un phishing.', true);
 
                     const btn = document.querySelector('#activity2 button.btn');
                     btn.disabled = true;
@@ -942,6 +983,8 @@
                 showMessage(card, 'Erreur serveur.', false);
             });
         }
+        //Appeler cette fonction au chargement pour mélanger les emails
+        generateEmailsHTML();
 
         // 3. Sécurité des mots de passe
         function selectPassword(id) {
@@ -953,16 +996,13 @@
                 document.getElementById('pwd' + id).classList.add('selected');
                 document.getElementById('pwd' + id).style.borderColor = '#0f0';
             } else {
-                // Déjà sélectionné → on l’enlève
                 passwordSelectionOrder.splice(index, 1);
                 document.getElementById('pwd' + id).classList.remove('selected');
                 document.getElementById('pwd' + id).style.borderColor = ''; // remet la bordure par défaut
             }
 
-            // Met à jour l’affichage de l’ordre
             document.getElementById('passwordOrder').textContent = passwordSelectionOrder.join(', ');
 
-            // Active/désactive le bouton selon la longueur
             document.getElementById('passwordBtn').disabled = (passwordSelectionOrder.length !== 5);
         }
 
