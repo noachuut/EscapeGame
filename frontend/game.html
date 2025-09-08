@@ -430,10 +430,10 @@
             color: #ffcc66;
         }
         .timer-circle {
-          --size: 60px;
-          --thickness: 4px;
-          --fg: rgb(11, 92, 214);        /* couleur de progression */
-          --bg: #1508c4;          /* couleur restante */
+          --size: 110px;
+          --thickness: 6px;
+          --fg: rgb(26, 100, 48);        /* couleur de progression */
+          --bg: #ff0303;          /* couleur restante */
           --pct: 1;
           position: fixed;
           top: 10px;
@@ -508,29 +508,39 @@
                 </div>
                 <div class="activity-description">
                     <p>Thomas a griffonné ce message chiffré sur son cahier avant de disparaître:</p>
-                    <div style="background: #222; padding: 15px; border-radius: 5px; margin: 10px 0; font-family: monospace; font-size: 1.2em; text-align: center; color: #ff6666;">
-                        "YRXV DYHC WURLV MRXUV SRXU PH WURXYHU"
+                    <div id="caesar-encrypted"
+                        style="background:#222; padding:15px; border-radius:5px; margin:10px 0;
+                            font-family:monospace; font-size:1.2em; text-align:center; color:#ff6666;">
                     </div>
                     <p>Indice: Thomas adorait Jules César et ses méthodes de chiffrement...</p>
                 </div>
+
                 <div class="input-group">
                     <label for="caesar-shift">Décalage (1-25):</label>
                     <input type="number" id="caesar-shift" min="1" max="25" placeholder="Entrez le décalage">
                 </div>
+
                 <div class="input-group">
                     <label for="caesar-result">Message déchiffré:</label>
                     <input type="text" id="caesar-result" placeholder="Le message apparaîtra ici" readonly>
+                    <button class="btn" onclick="checkCaesar()" style="margin-top: 10px;">Vérifier le déchiffrement</button>
                 </div>
+
                 <div class="input-group">
                     <label for="caesar-answer">Votre réponse (premier mot du message):</label>
                     <input type="text" id="caesar-answer" placeholder="Entrez le premier mot déchiffré">
                 </div>
-                <button class="btn" onclick="checkCaesar()">Vérifier le déchiffrement</button>
+
+                <button class="btn" onclick="confirmCaesar()">Confirmer la sélection</button>
+
                 <button class="hint-button" onclick="toggleHint('hint1')">💡 Besoin d'aide ?</button>
                 <div class="hint-content" id="hint1">
-                    Le code César décale chaque lettre d'un certain nombre de positions dans l'alphabet, par exemple pour un décalage de 5 le A devient F . Essayez différents décalages jusqu'à obtenir un message en français cohérent !
+                    Le code César décale chaque lettre d'un certain nombre de positions dans l'alphabet,
+                    par exemple pour un décalage de 5 le A devient F.
+                    Essayez différents décalages jusqu'à obtenir un message en français cohérent !
                 </div>
             </div>
+
 
             <!-- Activité 2: Phishing -->
             <div class="activity-card locked" id="activity2">
@@ -539,31 +549,6 @@
                     🎣 Activité 2: Identifier le phishing
                 </div>
                 <div class="activity-description">
-                    <p>Thomas avait reçu plusieurs emails suspects. Identifiez lequel est un phishing :</p>
-                    
-                    <div class="phishing-email" onclick="selectEmail(1)">
-                        <div class="email-header">
-                            <strong>De:</strong> support@paypal-security.com<br>
-                            <strong>Objet:</strong> Action requise: Vérifiez votre compte immédiatement
-                        </div>
-                        <p>Cher client, votre compte PayPal a été temporairement suspendu suite à une activité suspecte. Cliquez sur ce lien pour vérifier vos informations: http://paypal-verification.secure-update.com</p>
-                    </div>
-
-                    <div class="phishing-email" onclick="selectEmail(2)">
-                        <div class="email-header">
-                            <strong>De:</strong> noreply@lycee-saintemarie.edu<br>
-                            <strong>Objet:</strong> Relevé de notes du trimestre
-                        </div>
-                        <p>Bonjour Thomas, votre relevé de notes du 2ème trimestre est disponible sur l'ENT. Connectez-vous avec vos identifiants habituels pour le consulter.</p>
-                    </div>
-
-                    <div class="phishing-email" onclick="selectEmail(3)">
-                        <div class="email-header">
-                            <strong>De:</strong> contact@netflix.com<br>
-                            <strong>Objet:</strong> Nouveau contenu disponible
-                        </div>
-                        <p>Découvrez les nouvelles séries et films ajoutés cette semaine sur Netflix. Bonne découverte !</p>
-                    </div>
                 </div>
                 <div class="input-group">
                     <label>Email sélectionné: <span id="selectedEmail">Aucun</span></label>
@@ -908,28 +893,49 @@ async function applyPenalty() {
         // 1. Code César
         function checkCaesar() {
             const shift = parseInt(document.getElementById('caesar-shift').value, 10);
-            const output = [..."YRXV DYHC WURLV MRXUV SRXU PH WURXYHU"].map(c => {
+            if (!shift) return;
+
+            const output = [...currentEncrypted].map(c => {
                 if (!/[A-Z]/.test(c)) return c;
-                return String.fromCharCode((c.charCodeAt(0)-65 - shift + 26) % 26 + 65);
+                return String.fromCharCode((c.charCodeAt(0) - 65 - shift + 26) % 26 + 65);
+            }).join('');
+
+            document.getElementById('caesar-result').value = output;
+        }
+        
+        function confirmCaesar() {
+            const shift = parseInt(document.getElementById('caesar-shift').value, 10);
+            if (!shift) return;
+
+            // Déchiffre comme checkCaesar
+            const output = [...currentEncrypted].map(c => {
+                if (!/[A-Z]/.test(c)) return c;
+                return String.fromCharCode((c.charCodeAt(0) - 65 - shift + 26) % 26 + 65);
             }).join('');
             document.getElementById('caesar-result').value = output;
+
             const answer = document.getElementById('caesar-answer').value.trim();
             const card = document.getElementById('activity1');
-            if (!answer) return;
+            if (!answer) {
+                showMessage(card, "Veuillez entrer une réponse avant de confirmer.", false);
+                return;
+            }
 
+            // Vérifie avec le backend
             fetch('http://localhost:3000/api/activity1', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ shift, answer })
+                body: JSON.stringify({ shift, answer, encrypted: currentEncrypted })
             })
             .then(r => r.json())
             .then(data => {
                 if (data.success) {
                     answers.caesar = data.portion;
-                    showMessage(card, 'Message correctement déchiffré !', true);
+                    showMessage(card, '✅ Réponse confirmée !', true);
 
-                    const btn = document.querySelector('#activity1 button.btn');
-                    btn.disabled = true;
+                    // désactiver les boutons
+                    document.querySelector('#activity1 button.btn[onclick="checkCaesar()"]').disabled = true;
+                    document.querySelector('#activity1 button.btn[onclick="confirmCaesar()"]').disabled = true;
 
                     const out = document.createElement('div');
                     out.style.marginTop = '10px';
@@ -939,27 +945,95 @@ async function applyPenalty() {
                     markActivityCompleted(1);
                 } else {
                     applyPenalty();
-                    showMessage(card, 'Ce n\'est pas le bon mot…', false);
+                    showMessage(card, '❌ Mauvaise réponse.', false);
                 }
             })
             .catch(err => {
                 console.error(err);
                 applyPenalty();
-                showMessage(card, 'Erreur serveur.', false);
+                showMessage(card, '⚠️ Erreur serveur.', false);
             });
         }
 
+
+
         // 2. Phishing
-        function selectEmail(id) {
-            selectedEmailId = id;
-            document.querySelectorAll('.phishing-email').forEach((el, idx) => {
-                el.style.borderColor = idx+1===id ? '#00ff41' : '#666';
+        const emails = [
+            {
+                id: 'paypal_phishing',
+                isPhishing: true,
+                from: 'support@paypal-security.com',
+                subject: 'Action requise: Vérifiez votre compte immédiatement',
+                content: 'Cher client, votre compte PayPal a été temporairement suspendu suite à une activité suspecte. Cliquez sur ce lien pour vérifier vos informations: http://paypal-verification.secure-update.com'
+            },
+            {
+                id: 'lycee_legitimate',
+                isPhishing: false,
+                from: 'noreply@lycee-saintemarie.edu',
+                subject: 'Relevé de notes du trimestre',
+                content: 'Bonjour Thomas, votre relevé de notes du 2ème trimestre est disponible sur l\'ENT. Connectez-vous avec vos identifiants habituels pour le consulter.'
+            },
+            {
+                id: 'netflix_legitimate',
+                isPhishing: false,
+                from: 'contact@netflix.com',
+                subject: 'Nouveau contenu disponible',
+                content: 'Découvrez les nouvelles séries et films ajoutés cette semaine sur Netflix. Bonne découverte !'
+            }
+        ];
+
+        //Fonction pour mélanger un tableau
+        function shuffleArray(array) {
+            const shuffled = [...array];
+            for (let i = shuffled.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+            }
+            return shuffled;
+        }
+
+        //Fonction pour générer le HTML des emails
+        function generateEmailsHTML() {
+            const shuffledEmails = shuffleArray(emails);
+            const container = document.querySelector('#activity2 .activity-description');
+            
+            const introText = '<p>Thomas avait reçu plusieurs emails suspects. Identifiez lequel est un phishing :</p>';
+            
+            let emailsHTML = '';
+            shuffledEmails.forEach((email, index) => {
+                const displayIndex = index + 1;
+                emailsHTML += `
+                    <div class="phishing-email" onclick="selectEmail('${email.id}')">
+                        <div class="email-header">
+                            <strong>De:</strong> ${email.from}<br>
+                            <strong>Objet:</strong> ${email.subject}
+                        </div>
+                        <p>${email.content}</p>
+                    </div>
+                `;
             });
-            document.getElementById('selectedEmail').textContent = 'Email ' + id;
+            
+            container.innerHTML = introText + emailsHTML;
+        }
+        function selectEmail(emailId) {
+            selectedEmailId = emailId; 
+            // Mettre à jour l'affichage
+            document.querySelectorAll('.phishing-email').forEach(el => {
+                el.style.borderColor = '#666';
+            });
+            
+            event.target.closest('.phishing-email').style.borderColor = '#00ff41';
+
+            const emailElements = document.querySelectorAll('.phishing-email');
+            const selectedElement = event.target.closest('.phishing-email');
+            const displayIndex = Array.from(emailElements).indexOf(selectedElement) + 1;
+            
+            document.getElementById('selectedEmail').textContent = 'Email ' + displayIndex;
             document.getElementById('phishingBtn').disabled = false;
         }
         function checkPhishing() {
             const card = document.getElementById('activity2');
+            
             fetch('http://localhost:3000/api/activity2', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -969,7 +1043,7 @@ async function applyPenalty() {
             .then(data => {
                 if (data.success) {
                     answers.phishing = data.portion;
-                    showMessage(card, 'Correct ! C\'est bien un phishing.', true);
+                    showMessage(card, 'Correct ! C\'est bien un phishing.', true);
 
                     const btn = document.querySelector('#activity2 button.btn');
                     btn.disabled = true;
@@ -991,6 +1065,8 @@ async function applyPenalty() {
                 showMessage(card, 'Erreur serveur.', false);
             });
         }
+        //Appeler cette fonction au chargement pour mélanger les emails
+        generateEmailsHTML();
 
         // 3. Sécurité des mots de passe
         function selectPassword(id) {
@@ -1002,16 +1078,13 @@ async function applyPenalty() {
                 document.getElementById('pwd' + id).classList.add('selected');
                 document.getElementById('pwd' + id).style.borderColor = '#0f0';
             } else {
-                // Déjà sélectionné → on l’enlève
                 passwordSelectionOrder.splice(index, 1);
                 document.getElementById('pwd' + id).classList.remove('selected');
                 document.getElementById('pwd' + id).style.borderColor = ''; // remet la bordure par défaut
             }
 
-            // Met à jour l’affichage de l’ordre
             document.getElementById('passwordOrder').textContent = passwordSelectionOrder.join(', ');
 
-            // Active/désactive le bouton selon la longueur
             document.getElementById('passwordBtn').disabled = (passwordSelectionOrder.length !== 5);
         }
 
@@ -1203,7 +1276,28 @@ function checkOSINT() {
             ov.classList.add('active');
             setTimeout(() => { window.location.href = url; }, 600);
         }
+        // Phrase claire
+        const originalMessage = "VOUS AVEZ TROIS JOURS POUR ME TROUVER";
 
+        // Fonction César (chiffrement)
+        function caesarEncrypt(str, shift) {
+        return [...str].map(c => {
+            if (!/[A-Z]/.test(c)) return c;
+            return String.fromCharCode((c.charCodeAt(0)-65 + shift) % 26 + 65);
+        }).join('');
+        }
+
+        // Décalage aléatoire entre 1 et 25
+        const randomShift = Math.floor(Math.random() * 25) + 1;
+
+        // Générer le message chiffré
+        const encryptedMessage = caesarEncrypt(originalMessage, randomShift);
+
+        // Afficher dans l’activité 1
+        document.getElementById("caesar-encrypted").textContent = `"${encryptedMessage}"`;
+
+        // Stocker pour checkCaesar()
+        let currentEncrypted = encryptedMessage;
 
         // Initialisation
         window.onload = async () => {
