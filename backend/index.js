@@ -110,19 +110,31 @@ app.get('/api/scores', async (req,res) => {
 
 // 1. Code César
 app.post('/api/activity1', (req, res) => {
-  const { shift, answer } = req.body;
-  if (typeof shift !== 'number' || !answer) {
+  const { shift, answer, encrypted } = req.body;
+
+  // Vérification des paramètres reçus
+  if (typeof shift !== 'number' || !answer || !encrypted) {
     return res.status(400).json({ success: false });
   }
-  const encrypted = 'YRXV DYHC WURLV MRXUV SRXU PH WURXYHU';
+
+  // Déchiffre le message reçu avec le décalage proposé
   const decoded = [...encrypted].map(c => {
-    if (!/[A-Z]/.test(c)) return c;
+    if (!/[A-Z]/.test(c)) return c; // Ne touche pas aux espaces ni caractères spéciaux
     return String.fromCharCode((c.charCodeAt(0) - 65 - shift + 26) % 26 + 65);
   }).join('');
+
+  // Phrase attendue
+  const expected = "VOUS AVEZ TROIS JOURS POUR ME TROUVER";
+
+  // Premier mot du message déchiffré
   const first = decoded.split(' ')[0].toUpperCase();
-  if (first === 'VOUS' && answer.trim().toUpperCase() === 'VOUS') {
+
+  // Validation
+  if (decoded === expected && first === 'VOUS' && answer.trim().toUpperCase() === 'VOUS') {
     return res.json({ success: true, portion: 'VOUS' });
   }
+
+  // Mauvaise réponse
   res.json({ success: false });
 });
 
