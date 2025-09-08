@@ -586,49 +586,30 @@
                     🔍 Activité 4: OSINT - Date de naissance
                 </div>
                 <div class="activity-description">
-                    <p>Thomas avait recherché des infos sur une personne suspecte. Voici ce qu'il a trouvé:</p>
-                    <div style="background: #222; padding: 15px; border-radius: 5px; margin: 10px 0;">
-                        <p><strong>Profil suspect:</strong> Marc Dubois</p>
-                        <p><strong>Pseudo réseaux sociaux:</strong> @MarcD_1987</p>
-                        <p><strong>Bio Instagram:</strong> "Né sous le signe du Lion 🦁, passionné de tech"</p>
-                        <p><strong>Post Facebook:</strong> "Il y a 25 ans jour pour jour, je poussais mon premier cri ! 🎂" (posté le 15 août 2024)</p>
-                        <p><strong>LinkedIn:</strong> "Diplômé en 2005, j'avais alors 18 ans"</p>
-                        <p><strong>Commentaire Youtube:</strong> "J'avais 10 ans quand est sorti le premier Harry Potter au cinéma"</p>
-                    </div>
-                    <p>Analysez ces informations pour déduire sa date de naissance exacte.</p>
+                    <p>Thomas, passionné de chats, a été kidnappé par une inconnue qui lui déteste les chats. Tout ce que nous savons, c'est qu'il se parlait
+                        sur Tiktok, aidez-nous à retrouver le quartier du kidnappeur :
+                    </p>
                 </div>
                 <div class="input-group">
-                    <label for="birth-day">Jour:</label>
-                    <input type="number" id="birth-day" min="1" max="31" placeholder="JJ">
-                </div>
-                <div class="input-group">
-                    <label for="birth-month">Mois:</label>
-                    <select id="birth-month">
-                        <option value="">Choisir le mois</option>
-                        <option value="1">Janvier</option>
-                        <option value="2">Février</option>
-                        <option value="3">Mars</option>
-                        <option value="4">Avril</option>
-                        <option value="5">Mai</option>
-                        <option value="6">Juin</option>
-                        <option value="7">Juillet</option>
-                        <option value="8">Août</option>
-                        <option value="9">Septembre</option>
-                        <option value="10">Octobre</option>
-                        <option value="11">Novembre</option>
-                        <option value="12">Décembre</option>
-                    </select>
-                </div>
-                <div class="input-group">
-                    <label for="birth-year">Année:</label>
-                    <input type="number" id="birth-year" min="1980" max="2000" placeholder="AAAA">
-                </div>
-                <button class="btn" onclick="checkOSINT()">Vérifier la date</button>
-                <button class="hint-button" onclick="toggleHint('hint4')">💡 Besoin d'aide ?</button>
-                <div class="hint-content" id="hint4">
-                    Recoupez les informations: signe astrologique du Lion (23 juillet - 22 août), âge mentionné sur LinkedIn, référence à Harry Potter (sorti en 2001), anniversaire mentionné le 15 août...
-                </div>
-            </div>
+    <label for="compte">Compte Tiktok :</label>
+    <input type="text" id="compte" placeholder="@ktoyon">
+</div>
+
+<div class="input-group">
+    <label for="followers">Nombre de followers :</label>
+    <input type="number" id="followers" min="0" placeholder="Ex: 12000">
+</div>
+
+<div class="input-group">
+    <label for="ville">Quartier :</label>
+    <input type="text" id="ville" placeholder="Ex: kydas">
+</div>
+
+<button class="btn" onclick="checkOSINT()">Vérifier les infos</button>
+<button class="hint-button" onclick="toggleHint('hint4')">💡 Besoin d'aide ?</button>
+<div class="hint-content" id="hint4">
+    Essayez de retrouver les informations publiques : bio TikTok, réseaux sociaux, indices en arrière-plan des vidéos...
+</div>
         </div>
 
         <!-- Section finale -->
@@ -975,43 +956,47 @@
             });
         }
 
-        // 4. OSINT
-        function checkOSINT() {
-            const d = parseInt(document.getElementById('birth-day').value,10);
-            const m = parseInt(document.getElementById('birth-month').value,10);
-            const y = parseInt(document.getElementById('birth-year').value,10);
-            const card = document.getElementById('activity4');
-            fetch('http://localhost:3000/api/activity4', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ day: d, month: m, year: y })
-            })
-            .then(r => r.json())
-            .then(data => {
-                if (data.success) {
-                    answers.osint = data.portion;
-                    showMessage(card, 'Date correctement trouvée !', true);
+// 4. OSINT
+function checkOSINT() {
+    // Récupération des valeurs saisies dans le formulaire
+    const compte = document.getElementById('compte').value.trim();
+    const followers = parseInt(document.getElementById('followers').value, 10);
+    const ville = document.getElementById('ville').value.trim();
+    const card = document.getElementById('activity4');
 
-                    const btn = document.querySelector('#activity4 button.btn');
-                    btn.disabled = true;
+    // Envoi des infos vers le backend
+    fetch('http://localhost:3000/api/activity4', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ compte, followers, ville })
+    })
+    .then(r => r.json())
+    .then(data => {
+        if (data.success) {
+            answers.osint = data.portion;
+            showMessage(card, '✅ Quartier trouvé !', true);
 
-                    const out = document.createElement('div');
-                    out.style.marginTop = '10px';
-                    out.textContent = `🔒 Portion mot de passe: ${data.portion}`;
-                    card.appendChild(out);
+            const btn = document.querySelector('#activity4 button.btn');
+            btn.disabled = true;
 
-                    markActivityCompleted(4);
-                } else {
-                    applyPenalty();
-                    showMessage(card, 'Ça ne correspond pas.', false);
-                }
-            })
-            .catch(err => {
-                console.error(err);
-                applyPenalty();
-                showMessage(card, 'Erreur serveur.', false);
-            });
+            const out = document.createElement('div');
+            out.style.marginTop = '10px';
+            out.textContent = `🔒 Portion mot de passe: ${data.portion}`;
+            card.appendChild(out);
+
+            markActivityCompleted(4);
+        } else {
+            applyPenalty();
+            showMessage(card, '❌ Ça ne correspond pas.', false);
         }
+    })
+    .catch(err => {
+        console.error(err);
+        applyPenalty();
+        showMessage(card, '⚠️ Erreur serveur.', false);
+    });
+}
+
 
         // Finale
         function selectSuspect(id) {
