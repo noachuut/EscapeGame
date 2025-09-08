@@ -27,43 +27,87 @@
     <th>Rang</th><th>Équipe</th><th>Temps (s)</th><th>Date</th><th>Vitesse</th>
   </tr>
 </thead>
-    <tbody id="scoreTable">
+    <tbody id="scoresBody">
       <tr><td colspan="5">Chargement…</td></tr>
     </tbody>
   </table>
 
-  <script>
+<script>
+(function () {
+  const API = 'http://localhost:3000/api/scores'; // adapte si besoin
+  const tbody = document.getElementById('scoresBody');
+  if (!tbody) {
+    console.error("Pas de <tbody id='scoresBody'> sur la page.");
+    return;
+  }
 
-    const formatSeconds = s => new Date(s * 1000).toISOString().substr(11, 8);
-    async function loadScores() {
-      try {
-        const res = await fetch('http://localhost:3000/api/scores');
-        const scores = await res.json();  // doit renvoyer un tableau trié [{team,duration,created_at},…]
-        const tbody = document.getElementById('scoreTable');
-        tbody.innerHTML = scores.map((s, i) => {
-            // Choix de l’icône selon s.badge
-            let icon = '';
-            if (s.badge === 'or')      icon = '🥇';
-            else if (s.badge === 'argent') icon = '🥈';
-            else if (s.badge === 'bronze') icon = '🥉';
+  const setOneRow = (text) => {
+    tbody.innerHTML = `<tr><td colspan="5" style="text-align:center">${text}</td></tr>`;
+  };
 
-            return `
-              <tr>
-                <td>${i + 1}</td>
-                <td>${s.team_name}</td>
-                <td>${formatSeconds(s.duration_seconds)}</td>
-                <td>${new Date(s.created_at).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}</td>
-                <td>${icon}</td>
-              </tr>
-            `;
-          }).join('');     
-      } catch (e) {
-        console.error(e);
-        document.getElementById('scoreTable').innerHTML =
-          '<tr><td colspan="5">Impossible de charger le classement.</td></tr>';
+  const formatDuration = (sec) => {
+    const m = Math.floor(sec / 60);
+    const s = sec % 60;
+    return `00:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+  };
+
+  const badgeIcon = (b) => b === 'or' ? '🥇' : b === 'argent' ? '🥈' : b === 'bronze' ? '🥉' : '';
+
+  const formatDate = (row) => {
+    // 1) cas recommandé: created_at est un ISO string ou timestamp
+    if (row.created_at) {
+      const d = new Date(row.created_at);
+      if (!isNaN(d)) {
+        return d.toLocaleDateString('fr-FR') + ' ' +
+               d.toLocaleTimeString('fr-FR', {hour:'2-digit',minute:'2-digit'});
       }
     }
+    // 2) fallback si le backend renvoie deux champs
+    if (row.created_date && row.created_time) {
+      return `${row.created_date} ${row.created_time}`;
+    }
+    // 3) dernier recours: on évite "Invalid Date"
+    return '—';
+  };
+
+  async function loadScores() {
+    try {
+      const res = await fetch(API, { headers: { 'Accept': 'application/json' } });
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const rows = await res.json();
+      if (!Array.isArray(rows)) throw new Error('Payload non conforme');
+
+      if (rows.length === 0) {
+        setOneRow('Aucun score pour le moment.');
+        return;
+      }
+
+      tbody.innerHTML = '';
+      rows.forEach((row, i) => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td>${i + 1}</td>
+          <td>${row.team_name}</td>
+          <td>${formatDuration(row.duration_seconds)}</td>
+          <td>${formatDate(row)}</td>
+          <td>${badgeIcon(row.badge)}</td>
+        `;
+        tbody.appendChild(tr);
+      });
+    } catch (err) {
+      console.error('[scores] Échec de chargement:', err);
+      setOneRow('⚠️ Erreur de chargement (ouvre la console pour les détails).');
+    }
+  }
+
+  // Lance le chargement (attendre que le DOM soit prêt si le script n’est pas "defer")
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', loadScores);
+  } else {
     loadScores();
-  </script>
+  }
+})();
+</script>
+
 </body>
 </html>
