@@ -244,7 +244,7 @@ app.get('/api/scores', async (req,res) => {
         badge
       FROM scores
       ORDER BY duration_seconds ASC, created_at ASC
-      LIMIT 10
+      LIMIT 16
     `);
     res.json(rows);
   } catch (err) {
