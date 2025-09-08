@@ -129,10 +129,18 @@ app.post('/api/activity1', (req, res) => {
 // 2. Phishing
 app.post('/api/activity2', (req, res) => {
   const { selected } = req.body;
-  if (typeof selected !== 'number') {
+  
+  // Accepter les deux formats : nombre (ancien) et string (nouveau)
+  if (typeof selected !== 'string' && typeof selected !== 'number') {
     return res.status(400).json({ success: false });
   }
-  if (selected === 1) return res.json({ success: true, portion: '1' });
+  
+  // Vérifier si l'email sélectionné est le phishing
+  if (selected === 'paypal_phishing' || selected === 1) {
+    return res.json({ success: true, portion: '1' });
+  }
+  
+  // Sinon, mauvaise réponse
   res.json({ success: false });
 });
 
