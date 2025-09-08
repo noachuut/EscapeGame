@@ -150,16 +150,30 @@ app.post('/api/activity3', (req, res) => {
 });
 
 // 4. OSINT
+// Exemple backend Express pour activité 4 (OSINT)
 app.post('/api/activity4', (req, res) => {
-  const { day, month, year } = req.body;
-  const d = parseInt(day, 10);
-  const m = parseInt(month, 10);
-  const y = parseInt(year, 10);
-  if (d === 15 && m === 8 && y === 1987) {
-    return res.json({ success: true, portion: '15081987' });
-  }
-  res.json({ success: false });
+    const { compte, followers, ville } = req.body;
+
+    // 🔹 Valeurs attendues (tu peux les changer)
+    const COMPTE_ATTENDU = "@ku81177";
+    const FOLLOWERS_ATTENDU = 2;
+    const VILLE_ATTENDUE = "lotis";
+
+    // Vérif des infos reçues
+    if (
+        compte.toLowerCase() === COMPTE_ATTENDU &&
+        parseInt(followers, 10) === FOLLOWERS_ATTENDU &&
+        ville.toLowerCase() === VILLE_ATTENDUE.toLowerCase()
+    ) {
+        res.json({
+            success: true,
+            portion: "LOTIS" // portion du mot de passe
+        });
+    } else {
+        res.json({ success: false });
+    }
 });
+
 
 
 // Endpoint pour sauver un score
