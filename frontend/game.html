@@ -563,7 +563,7 @@
                         🔑 thomas123
                     </div>
                     <div class="password-item" onclick="selectPassword(5)" id="pwd5">
-                        🔑 J'aiMe-Les_Maths&LaPhysique2024!
+                        🔑 JaiMe-Les_Maths&LaPhysique2024!
                     </div>
                 </div>
                 <div class="input-group">
@@ -912,14 +912,27 @@
 
         // 3. Sécurité des mots de passe
         function selectPassword(id) {
-            if (!passwordSelectionOrder.includes(id)) {
+            const index = passwordSelectionOrder.indexOf(id);
+
+            if (index === -1) {
+                // Pas encore sélectionné → on l’ajoute
                 passwordSelectionOrder.push(id);
                 document.getElementById('pwd' + id).classList.add('selected');
                 document.getElementById('pwd' + id).style.borderColor = '#0f0';
-                document.getElementById('passwordOrder').textContent = passwordSelectionOrder.join(', ');
+            } else {
+                // Déjà sélectionné → on l’enlève
+                passwordSelectionOrder.splice(index, 1);
+                document.getElementById('pwd' + id).classList.remove('selected');
+                document.getElementById('pwd' + id).style.borderColor = ''; // remet la bordure par défaut
             }
-            if (passwordSelectionOrder.length === 5) document.getElementById('passwordBtn').disabled = false;
+
+            // Met à jour l’affichage de l’ordre
+            document.getElementById('passwordOrder').textContent = passwordSelectionOrder.join(', ');
+
+            // Active/désactive le bouton selon la longueur
+            document.getElementById('passwordBtn').disabled = (passwordSelectionOrder.length !== 5);
         }
+
         function checkPasswordSecurity() {
             const card = document.getElementById('activity3');
             fetch('http://localhost:3000/api/activity3', {
