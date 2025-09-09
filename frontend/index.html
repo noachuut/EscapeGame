@@ -86,8 +86,9 @@
   align-items: center;
   justify-content: center;
   z-index: 2000;
-  animation: introFade 6s ease-in-out forwards;
+  /* animation: introFade 6s ease-in-out forwards; */ /* retiré */
 }
+
 
 /* Logo et message */
 #intro-logo {
@@ -146,12 +147,13 @@
 
   <script>
 
-    document.getElementById('intro-overlay')
-    .addEventListener('animationend', () => {
-      document.getElementById('intro-overlay').remove();
-      // Optionnel : lancer ici l'animation Matrix ou montrer .welcome
+    const intro = document.getElementById('intro-overlay');
+
+    intro.addEventListener('click', () => {
+      intro.remove();
       document.querySelector('.welcome').classList.add('visible');
     });
+
 
     async function startGame() {
       const name = document.getElementById('teamName').value.trim();
