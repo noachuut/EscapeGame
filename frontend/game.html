@@ -265,7 +265,7 @@
 
         .password-item {
             background: #333;
-            border: 1px solid #666;
+            border: 1px solid #665;
             border-radius: 5px;
             padding: 10px;
             margin: 5px 0;
@@ -284,6 +284,7 @@
         }
 
         .final-section {
+            width: 80%;
             background: rgba(255, 215, 0, 0.1);
             border: 2px solid #ffd700;
             border-radius: 15px;
@@ -291,7 +292,40 @@
             text-align: center;
             margin-top: 40px;
             display: none;
+        grid-column: span 2;
+            grid-row: span 2;
         }
+
+        .photos-section {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 20px;
+            margin: 20px 0;
+        }
+
+        .photos-section img {
+            aspect-ratio: 3/4;   /* toutes les images en ratio portrait */
+            width: 100%;
+            object-fit: cover;
+            border-radius: 10px;
+            border: 2px solid #666;
+        }
+
+        /* Zone d'aperçu de la photo sélectionnée */
+        .photo-preview {
+        margin: 20px 0;
+        display: none;                 /* caché tant qu’aucun clic */
+        justify-content: center;
+        }
+        .photo-preview img {
+        width: 220px;                  /* même dimension pour tous */
+        height: 280px;
+        object-fit: cover;             /* recadrage sans déformer */
+        border-radius: 10px;
+        border: 2px solid #666;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.35);
+        }
+
 
         .suspects-grid {
             display: grid;
@@ -396,10 +430,10 @@
             color: #ffcc66;
         }
         .timer-circle {
-          --size: 60px;
-          --thickness: 4px;
-          --fg: rgb(11, 92, 214);        /* couleur de progression */
-          --bg: #1508c4;          /* couleur restante */
+          --size: 110px;
+          --thickness: 6px;
+          --fg: rgb(26, 100, 48);        /* couleur de progression */
+          --bg: #ff0303;          /* couleur restante */
           --pct: 1;
           position: fixed;
           top: 10px;
@@ -474,29 +508,39 @@
                 </div>
                 <div class="activity-description">
                     <p>Thomas a griffonné ce message chiffré sur son cahier avant de disparaître:</p>
-                    <div style="background: #222; padding: 15px; border-radius: 5px; margin: 10px 0; font-family: monospace; font-size: 1.2em; text-align: center; color: #ff6666;">
-                        "YRXV DYHC WURLV MRXUV SRXU PH WURXYHU"
+                    <div id="caesar-encrypted"
+                        style="background:#222; padding:15px; border-radius:5px; margin:10px 0;
+                            font-family:monospace; font-size:1.2em; text-align:center; color:#ff6666;">
                     </div>
                     <p>Indice: Thomas adorait Jules César et ses méthodes de chiffrement...</p>
                 </div>
+
                 <div class="input-group">
                     <label for="caesar-shift">Décalage (1-25):</label>
                     <input type="number" id="caesar-shift" min="1" max="25" placeholder="Entrez le décalage">
                 </div>
+
                 <div class="input-group">
                     <label for="caesar-result">Message déchiffré:</label>
                     <input type="text" id="caesar-result" placeholder="Le message apparaîtra ici" readonly>
+                    <button class="btn" onclick="checkCaesar()" style="margin-top: 10px;">Vérifier le déchiffrement</button>
                 </div>
+
                 <div class="input-group">
                     <label for="caesar-answer">Votre réponse (premier mot du message):</label>
                     <input type="text" id="caesar-answer" placeholder="Entrez le premier mot déchiffré">
                 </div>
-                <button class="btn" onclick="checkCaesar()">Vérifier le déchiffrement</button>
+
+                <button class="btn" onclick="confirmCaesar()">Confirmer la sélection</button>
+
                 <button class="hint-button" onclick="toggleHint('hint1')">💡 Besoin d'aide ?</button>
                 <div class="hint-content" id="hint1">
-                    Le code César décale chaque lettre d'un certain nombre de positions dans l'alphabet, par exemple pour un décalage de 5 le A devient F . Essayez différents décalages jusqu'à obtenir un message en français cohérent !
+                    Le code César décale chaque lettre d'un certain nombre de positions dans l'alphabet,
+                    par exemple pour un décalage de 5 le A devient F.
+                    Essayez différents décalages jusqu'à obtenir un message en français cohérent !
                 </div>
             </div>
+
 
             <!-- Activité 2: Phishing -->
             <div class="activity-card locked" id="activity2">
@@ -505,31 +549,6 @@
                     🎣 Activité 2: Identifier le phishing
                 </div>
                 <div class="activity-description">
-                    <p>Thomas avait reçu plusieurs emails suspects. Identifiez lequel est un phishing :</p>
-                    
-                    <div class="phishing-email" onclick="selectEmail(1)">
-                        <div class="email-header">
-                            <strong>De:</strong> support@paypal-security.com<br>
-                            <strong>Objet:</strong> Action requise: Vérifiez votre compte immédiatement
-                        </div>
-                        <p>Cher client, votre compte PayPal a été temporairement suspendu suite à une activité suspecte. Cliquez sur ce lien pour vérifier vos informations: http://paypal-verification.secure-update.com</p>
-                    </div>
-
-                    <div class="phishing-email" onclick="selectEmail(2)">
-                        <div class="email-header">
-                            <strong>De:</strong> noreply@lycee-saintemarie.edu<br>
-                            <strong>Objet:</strong> Relevé de notes du trimestre
-                        </div>
-                        <p>Bonjour Thomas, votre relevé de notes du 2ème trimestre est disponible sur l'ENT. Connectez-vous avec vos identifiants habituels pour le consulter.</p>
-                    </div>
-
-                    <div class="phishing-email" onclick="selectEmail(3)">
-                        <div class="email-header">
-                            <strong>De:</strong> contact@netflix.com<br>
-                            <strong>Objet:</strong> Nouveau contenu disponible
-                        </div>
-                        <p>Découvrez les nouvelles séries et films ajoutés cette semaine sur Netflix. Bonne découverte !</p>
-                    </div>
                 </div>
                 <div class="input-group">
                     <label>Email sélectionné: <span id="selectedEmail">Aucun</span></label>
@@ -563,7 +582,7 @@
                         🔑 thomas123
                     </div>
                     <div class="password-item" onclick="selectPassword(5)" id="pwd5">
-                        🔑 J'aiMe-Les_Maths&LaPhysique2024!
+                        🔑 JaiMe-Les_Maths&LaPhysique2024!
                     </div>
                 </div>
                 <div class="input-group">
@@ -586,85 +605,74 @@
                     🔍 Activité 4: OSINT - Date de naissance
                 </div>
                 <div class="activity-description">
-                    <p>Thomas avait recherché des infos sur une personne suspecte. Voici ce qu'il a trouvé:</p>
-                    <div style="background: #222; padding: 15px; border-radius: 5px; margin: 10px 0;">
-                        <p><strong>Profil suspect:</strong> Marc Dubois</p>
-                        <p><strong>Pseudo réseaux sociaux:</strong> @MarcD_1987</p>
-                        <p><strong>Bio Instagram:</strong> "Né sous le signe du Lion 🦁, passionné de tech"</p>
-                        <p><strong>Post Facebook:</strong> "Il y a 25 ans jour pour jour, je poussais mon premier cri ! 🎂" (posté le 15 août 2024)</p>
-                        <p><strong>LinkedIn:</strong> "Diplômé en 2005, j'avais alors 18 ans"</p>
-                        <p><strong>Commentaire Youtube:</strong> "J'avais 10 ans quand est sorti le premier Harry Potter au cinéma"</p>
-                    </div>
-                    <p>Analysez ces informations pour déduire sa date de naissance exacte.</p>
+                    <p>Thomas, passionné de chats, a été kidnappé par une inconnue qui lui déteste les chats. Tout ce que nous savons, c'est qu'il se parlait
+                        sur Tiktok, aidez-nous à retrouver le quartier du kidnappeur :
+                    </p>
                 </div>
                 <div class="input-group">
-                    <label for="birth-day">Jour:</label>
-                    <input type="number" id="birth-day" min="1" max="31" placeholder="JJ">
-                </div>
-                <div class="input-group">
-                    <label for="birth-month">Mois:</label>
-                    <select id="birth-month">
-                        <option value="">Choisir le mois</option>
-                        <option value="1">Janvier</option>
-                        <option value="2">Février</option>
-                        <option value="3">Mars</option>
-                        <option value="4">Avril</option>
-                        <option value="5">Mai</option>
-                        <option value="6">Juin</option>
-                        <option value="7">Juillet</option>
-                        <option value="8">Août</option>
-                        <option value="9">Septembre</option>
-                        <option value="10">Octobre</option>
-                        <option value="11">Novembre</option>
-                        <option value="12">Décembre</option>
-                    </select>
-                </div>
-                <div class="input-group">
-                    <label for="birth-year">Année:</label>
-                    <input type="number" id="birth-year" min="1980" max="2000" placeholder="AAAA">
-                </div>
-                <button class="btn" onclick="checkOSINT()">Vérifier la date</button>
-                <button class="hint-button" onclick="toggleHint('hint4')">💡 Besoin d'aide ?</button>
-                <div class="hint-content" id="hint4">
-                    Recoupez les informations: signe astrologique du Lion (23 juillet - 22 août), âge mentionné sur LinkedIn, référence à Harry Potter (sorti en 2001), anniversaire mentionné le 15 août...
-                </div>
-            </div>
+    <label for="compte">Compte Tiktok :</label>
+    <input type="text" id="compte" placeholder="@ktoyon">
+</div>
+
+<div class="input-group">
+    <label for="followers">Nombre de followers :</label>
+    <input type="number" id="followers" min="0" placeholder="Ex: 12000">
+</div>
+
+<div class="input-group">
+    <label for="ville">Quartier :</label>
+    <input type="text" id="ville" placeholder="Ex: kydas">
+</div>
+
+<button class="btn" onclick="checkOSINT()">Vérifier les infos</button>
+<button class="hint-button" onclick="toggleHint('hint4')">💡 Besoin d'aide ?</button>
+<div class="hint-content" id="hint4">
+    Essayez de retrouver les informations publiques : bio TikTok, réseaux sociaux, indices en arrière-plan des vidéos...
+</div>
         </div>
 
         <!-- Section finale -->
         <div class="final-section" id="finalSection">
-            <h2>🎯 PHASE FINALE: IDENTIFIER LE RAVISSEUR</h2>
-            <p>Excellent travail ! Vous avez collecté tous les indices. Maintenant, identifiez le ravisseur parmi ces 4 suspects:</p>
-            
+                <h2>🎯 PHASE FINALE: IDENTIFIER LE RAVISSEUR</h2>
+                <p id="finalPasswordDisplay" style="margin: 10px 0; font-weight: bold;"></p>
+                <p>Excellent travail ! Vous avez collecté tous les indices. Maintenant, identifiez le ravisseur parmi ces 4 suspects:</p>
+
+                <div class="photo-preview" id="photoPreview">
+                    <img id="suspectPreview" src="" alt="Photo du suspect">
+                </div>
             <div class="suspects-grid">
                 <div class="suspect-card" onclick="selectSuspect(1)">
-                    <h3>Marc Dubois</h3>
-                    <p>Informaticien</p>
-                    <p>Né le 15/08/1987</p>
-                    <p>Spécialiste en cybersécurité</p>
+                    <h3>Honoré Nayo</h3>
+                    <p>Homme</p>
+                    <p>Francais</p>
+                    <p>Aime la danse</p>
+                    <p>Blond</p>
                 </div>
                 <div class="suspect-card" onclick="selectSuspect(2)">
-                    <h3>Julie Martin</h3>
-                    <p>Professeure</p>
-                    <p>Née le 12/03/1985</p>
-                    <p>Enseigne les mathématiques</p>
+                    <h3>Lorenzo Capucci</h3>
+                    <p>Homme</p>
+                    <p>Français</p>
+                    <p>Adore la cuisine italienne</p>
+                    <p>Chauve</p>
                 </div>
                 <div class="suspect-card" onclick="selectSuspect(3)">
-                    <h3>Pierre Leroy</h3>
-                    <p>Ancien élève</p>
-                    <p>Né le 22/11/1988</p>
-                    <p>Informaticien freelance</p>
+                    <h3>Luidji Doe</h3>
+                    <p>Homme</p>
+                    <p>Francais</p>
+                    <p>Aime la litérature</p>
+                    <p>Blond</p>
                 </div>
                 <div class="suspect-card" onclick="selectSuspect(4)">
-                    <h3>Sarah Dumont</h3>
-                    <p>Surveillante</p>
-                    <p>Née le 08/06/1990</p>
+                    <h3>Jade Dore</h3>
+                    <p>Femme</p>
+                    <p>Francais</p>
                     <p>Étudiante en psychologie</p>
+                    <p>Blonde</p>
                 </div>
             </div>
 
             <div class="input-group">
-                <label for="session-password">Mot de passe de session (assemblé avec vos réponses):</label>
+                <label for="session-password">Mot de passe de session (assemblé les portions de mot de passe des activités):</label>
                 <input type="text" id="session-password" placeholder="Assemblez vos 4 réponses pour former le mot de passe">
             </div>
 
@@ -678,10 +686,70 @@
         let selectedSuspect = 0;
         let selectedEmailId = 0;
         let passwordSelectionOrder = [];
-        let timeLeft = 1800; // 30 minutes
-        const totalTime = timeLeft;
         let lastUnlocked = 0;
 
+// === TIMER PILOTÉ PAR LE SERVEUR ===
+let endsAtMs = null;
+let startedAtMs = null;
+const DEFAULT_DURATION = 1800; // 30 min
+
+function renderTimer() {
+  if (!endsAtMs) return;
+  const now = Date.now();
+  const remain = Math.max(0, Math.floor((endsAtMs - now) / 1000));
+  const m = Math.floor(remain / 60);
+  const s = remain % 60;
+
+  const timerEl = document.getElementById('timer');
+  const pct = remain / DEFAULT_DURATION; // simple, sinon renvoie aussi la durée côté API
+  timerEl.style.setProperty('--pct', Math.max(0, Math.min(1, pct)));
+  timerEl.querySelector('.timer-label').textContent = `${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+
+  if (remain > 0) setTimeout(renderTimer, 1000);
+  else alert('⏰ TEMPS ÉCOULÉ ! Le ravisseur a changé de cachette...');
+}
+
+async function ensureTimer(team, duration = DEFAULT_DURATION) {
+  // 1) Essaye de récupérer un timer existant
+  let r = await fetch(`http://localhost:3000/api/timer/${encodeURIComponent(team)}`);
+  if (r.status === 404) {
+    // 2) S’il n’existe pas, démarre-le
+    await fetch('http://localhost:3000/api/timer/start', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ team, duration })
+    });
+    r = await fetch(`http://localhost:3000/api/timer/${encodeURIComponent(team)}`);
+  }
+  const data = await r.json();
+  startedAtMs = new Date(data.startedAt).getTime();
+  endsAtMs    = new Date(data.endsAt).getTime();
+  renderTimer();
+}
+
+// Pénalité côté front (affichage). Pour l’appliquer VRAIMENT, voir endpoint backend plus bas.
+async function applyPenalty() {
+  // Option A (recommandé) : côté serveur ↓
+  try {
+    const team = localStorage.getItem('cyberTeam');
+    const res = await fetch('http://localhost:3000/api/timer/penalty', {
+      method: 'POST', headers: { 'Content-Type':'application/json' },
+      body: JSON.stringify({ team, seconds: 10 })
+    });
+    if (res.ok) {
+      const { endsAt } = await res.json();
+      endsAtMs = new Date(endsAt).getTime();
+    } else {
+      // fallback visuel si l'API n'existe pas
+      if (endsAtMs) endsAtMs -= 10 * 1000;
+    }
+  } catch {
+    if (endsAtMs) endsAtMs -= 10 * 1000; // fallback visuel
+  }
+
+  // petite notif
+  showMessage(document.body, '⏱️ 10 sec de pénalité !', false);
+}
 
 
         // Pénalité de 10 secondes sur une mauvaise réponse
@@ -735,24 +803,6 @@
                 });
             }
             setInterval(draw, 50);
-        }
-
-       function updateTimer() {
-            const pct = Math.max(0, timeLeft / totalTime);
-            const timerEl = document.getElementById('timer');
-            timerEl.style.setProperty('--pct', pct);
-
-            const minutes = Math.floor(timeLeft / 60);
-            const seconds = timeLeft % 60;
-            timerEl.querySelector('.timer-label').textContent =
-                `${String(minutes).padStart(2,'0')}:${String(seconds).padStart(2,'0')}`;
-
-            if (timeLeft <= 0) {
-                alert('⏰ TEMPS ÉCOULÉ ! Le ravisseur a changé de cachette... Thomas est perdu !');
-                return;
-            }
-            timeLeft--;
-            setTimeout(updateTimer, 1000);
         }
 
         
@@ -826,13 +876,11 @@
                 const finalPwd = answers.caesar + answers.phishing + answers.strongestPassword + answers.osint;
                 localStorage.setItem('sessionPwd', finalPwd);
                 // Conservez la durée pour l'enregistrement du score
-                const duration = totalTime - timeLeft;
-                localStorage.setItem('cyberDuration', duration);
-
-                // Petite pause pour laisser l’UI se mettre à jour
-                setTimeout(() => {
-                fadeTo('unlock.html');
-                }, 800);
+                const nowSec = Math.floor((Date.now() - startedAtMs)/1000);
+                // Afficher la section finale avec le mot de passe
+                const section = document.getElementById('finalSection');
+                section.style.display = 'block';
+                section.scrollIntoView({ behavior: 'smooth' });
             }
             updateProgress();
         }
@@ -845,28 +893,49 @@
         // 1. Code César
         function checkCaesar() {
             const shift = parseInt(document.getElementById('caesar-shift').value, 10);
-            const output = [..."YRXV DYHC WURLV MRXUV SRXU PH WURXYHU"].map(c => {
+            if (!shift) return;
+
+            const output = [...currentEncrypted].map(c => {
                 if (!/[A-Z]/.test(c)) return c;
-                return String.fromCharCode((c.charCodeAt(0)-65 - shift + 26) % 26 + 65);
+                return String.fromCharCode((c.charCodeAt(0) - 65 - shift + 26) % 26 + 65);
+            }).join('');
+
+            document.getElementById('caesar-result').value = output;
+        }
+        
+        function confirmCaesar() {
+            const shift = parseInt(document.getElementById('caesar-shift').value, 10);
+            if (!shift) return;
+
+            // Déchiffre comme checkCaesar
+            const output = [...currentEncrypted].map(c => {
+                if (!/[A-Z]/.test(c)) return c;
+                return String.fromCharCode((c.charCodeAt(0) - 65 - shift + 26) % 26 + 65);
             }).join('');
             document.getElementById('caesar-result').value = output;
+
             const answer = document.getElementById('caesar-answer').value.trim();
             const card = document.getElementById('activity1');
-            if (!answer) return;
+            if (!answer) {
+                showMessage(card, "Veuillez entrer une réponse avant de confirmer.", false);
+                return;
+            }
 
+            // Vérifie avec le backend
             fetch('http://localhost:3000/api/activity1', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ shift, answer })
+                body: JSON.stringify({ shift, answer, encrypted: currentEncrypted })
             })
             .then(r => r.json())
             .then(data => {
                 if (data.success) {
                     answers.caesar = data.portion;
-                    showMessage(card, 'Message correctement déchiffré !', true);
+                    showMessage(card, '✅ Réponse confirmée !', true);
 
-                    const btn = document.querySelector('#activity1 button.btn');
-                    btn.disabled = true;
+                    // désactiver les boutons
+                    document.querySelector('#activity1 button.btn[onclick="checkCaesar()"]').disabled = true;
+                    document.querySelector('#activity1 button.btn[onclick="confirmCaesar()"]').disabled = true;
 
                     const out = document.createElement('div');
                     out.style.marginTop = '10px';
@@ -876,27 +945,95 @@
                     markActivityCompleted(1);
                 } else {
                     applyPenalty();
-                    showMessage(card, 'Ce n\'est pas le bon mot…', false);
+                    showMessage(card, '❌ Mauvaise réponse.', false);
                 }
             })
             .catch(err => {
                 console.error(err);
                 applyPenalty();
-                showMessage(card, 'Erreur serveur.', false);
+                showMessage(card, '⚠️ Erreur serveur.', false);
             });
         }
 
+
+
         // 2. Phishing
-        function selectEmail(id) {
-            selectedEmailId = id;
-            document.querySelectorAll('.phishing-email').forEach((el, idx) => {
-                el.style.borderColor = idx+1===id ? '#00ff41' : '#666';
+        const emails = [
+            {
+                id: 'paypal_phishing',
+                isPhishing: true,
+                from: 'support@paypal-security.com',
+                subject: 'Action requise: Vérifiez votre compte immédiatement',
+                content: 'Cher client, votre compte PayPal a été temporairement suspendu suite à une activité suspecte. Cliquez sur ce lien pour vérifier vos informations: http://paypal-verification.secure-update.com'
+            },
+            {
+                id: 'lycee_legitimate',
+                isPhishing: false,
+                from: 'noreply@lycee-saintemarie.edu',
+                subject: 'Relevé de notes du trimestre',
+                content: 'Bonjour Thomas, votre relevé de notes du 2ème trimestre est disponible sur l\'ENT. Connectez-vous avec vos identifiants habituels pour le consulter.'
+            },
+            {
+                id: 'netflix_legitimate',
+                isPhishing: false,
+                from: 'contact@netflix.com',
+                subject: 'Nouveau contenu disponible',
+                content: 'Découvrez les nouvelles séries et films ajoutés cette semaine sur Netflix. Bonne découverte !'
+            }
+        ];
+
+        //Fonction pour mélanger un tableau
+        function shuffleArray(array) {
+            const shuffled = [...array];
+            for (let i = shuffled.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+            }
+            return shuffled;
+        }
+
+        //Fonction pour générer le HTML des emails
+        function generateEmailsHTML() {
+            const shuffledEmails = shuffleArray(emails);
+            const container = document.querySelector('#activity2 .activity-description');
+            
+            const introText = '<p>Thomas avait reçu plusieurs emails suspects. Identifiez lequel est un phishing :</p>';
+            
+            let emailsHTML = '';
+            shuffledEmails.forEach((email, index) => {
+                const displayIndex = index + 1;
+                emailsHTML += `
+                    <div class="phishing-email" onclick="selectEmail('${email.id}')">
+                        <div class="email-header">
+                            <strong>De:</strong> ${email.from}<br>
+                            <strong>Objet:</strong> ${email.subject}
+                        </div>
+                        <p>${email.content}</p>
+                    </div>
+                `;
             });
-            document.getElementById('selectedEmail').textContent = 'Email ' + id;
+            
+            container.innerHTML = introText + emailsHTML;
+        }
+        function selectEmail(emailId) {
+            selectedEmailId = emailId; 
+            // Mettre à jour l'affichage
+            document.querySelectorAll('.phishing-email').forEach(el => {
+                el.style.borderColor = '#666';
+            });
+            
+            event.target.closest('.phishing-email').style.borderColor = '#00ff41';
+
+            const emailElements = document.querySelectorAll('.phishing-email');
+            const selectedElement = event.target.closest('.phishing-email');
+            const displayIndex = Array.from(emailElements).indexOf(selectedElement) + 1;
+            
+            document.getElementById('selectedEmail').textContent = 'Email ' + displayIndex;
             document.getElementById('phishingBtn').disabled = false;
         }
         function checkPhishing() {
             const card = document.getElementById('activity2');
+            
             fetch('http://localhost:3000/api/activity2', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -906,7 +1043,7 @@
             .then(data => {
                 if (data.success) {
                     answers.phishing = data.portion;
-                    showMessage(card, 'Correct ! C\'est bien un phishing.', true);
+                    showMessage(card, 'Correct ! C\'est bien un phishing.', true);
 
                     const btn = document.querySelector('#activity2 button.btn');
                     btn.disabled = true;
@@ -928,17 +1065,29 @@
                 showMessage(card, 'Erreur serveur.', false);
             });
         }
+        //Appeler cette fonction au chargement pour mélanger les emails
+        generateEmailsHTML();
 
         // 3. Sécurité des mots de passe
         function selectPassword(id) {
-            if (!passwordSelectionOrder.includes(id)) {
+            const index = passwordSelectionOrder.indexOf(id);
+
+            if (index === -1) {
+                // Pas encore sélectionné → on l’ajoute
                 passwordSelectionOrder.push(id);
                 document.getElementById('pwd' + id).classList.add('selected');
                 document.getElementById('pwd' + id).style.borderColor = '#0f0';
-                document.getElementById('passwordOrder').textContent = passwordSelectionOrder.join(', ');
+            } else {
+                passwordSelectionOrder.splice(index, 1);
+                document.getElementById('pwd' + id).classList.remove('selected');
+                document.getElementById('pwd' + id).style.borderColor = ''; // remet la bordure par défaut
             }
-            if (passwordSelectionOrder.length === 5) document.getElementById('passwordBtn').disabled = false;
+
+            document.getElementById('passwordOrder').textContent = passwordSelectionOrder.join(', ');
+
+            document.getElementById('passwordBtn').disabled = (passwordSelectionOrder.length !== 5);
         }
+
         function checkPasswordSecurity() {
             const card = document.getElementById('activity3');
             fetch('http://localhost:3000/api/activity3', {
@@ -975,82 +1124,126 @@
             });
         }
 
-        // 4. OSINT
-        function checkOSINT() {
-            const d = parseInt(document.getElementById('birth-day').value,10);
-            const m = parseInt(document.getElementById('birth-month').value,10);
-            const y = parseInt(document.getElementById('birth-year').value,10);
-            const card = document.getElementById('activity4');
-            fetch('http://localhost:3000/api/activity4', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ day: d, month: m, year: y })
-            })
-            .then(r => r.json())
-            .then(data => {
-                if (data.success) {
-                    answers.osint = data.portion;
-                    showMessage(card, 'Date correctement trouvée !', true);
+// 4. OSINT
+function checkOSINT() {
+    // Récupération des valeurs saisies dans le formulaire
+    const compte = document.getElementById('compte').value.trim();
+    const followers = parseInt(document.getElementById('followers').value, 10);
+    const ville = document.getElementById('ville').value.trim();
+    const card = document.getElementById('activity4');
 
-                    const btn = document.querySelector('#activity4 button.btn');
-                    btn.disabled = true;
+    // Envoi des infos vers le backend
+    fetch('http://localhost:3000/api/activity4', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ compte, followers, ville })
+    })
+    .then(r => r.json())
+    .then(data => {
+        if (data.success) {
+            answers.osint = data.portion;
+            showMessage(card, '✅ Quartier trouvé !', true);
 
-                    const out = document.createElement('div');
-                    out.style.marginTop = '10px';
-                    out.textContent = `🔒 Portion mot de passe: ${data.portion}`;
-                    card.appendChild(out);
+            const btn = document.querySelector('#activity4 button.btn');
+            btn.disabled = true;
 
-                    markActivityCompleted(4);
-                } else {
-                    applyPenalty();
-                    showMessage(card, 'Ça ne correspond pas.', false);
-                }
-            })
-            .catch(err => {
-                console.error(err);
-                applyPenalty();
-                showMessage(card, 'Erreur serveur.', false);
-            });
+            const out = document.createElement('div');
+            out.style.marginTop = '10px';
+            out.textContent = `🔒 Portion mot de passe: ${data.portion}`;
+            card.appendChild(out);
+
+            markActivityCompleted(4);
+        } else {
+            applyPenalty();
+            showMessage(card, '❌ Ça ne correspond pas.', false);
         }
+    })
+    .catch(err => {
+        console.error(err);
+        applyPenalty();
+        showMessage(card, '⚠️ Erreur serveur.', false);
+    });
+}
+
+        // Associe l'id (1..4) à l'image et à l'alt
+        const SUSPECT_PHOTOS = {
+        1: { src: './assets/Brad_Pitt_Cannes_2012.jpg', alt: 'Marc Dubois' },
+        2: { src: './assets/johnny-sins-1.webp',       alt: 'Julie Martin' },
+        3: { src: './assets/thumbnail_squeezy-rap.webp', alt: 'Pierre Leroy' },
+        4: { src: './assets/834745_polska_passe_sur_bfmtv_et_se_definit_com_opengraph_1200_61693564258567-format4by3.jpg', alt: 'Sarah Dumont' }
+        };
 
         // Finale
         function selectSuspect(id) {
-            selectedSuspect = id;
-            document.querySelectorAll('.suspect-card').forEach((el, idx) => {
-                el.classList.toggle('selected', idx+1===id);
-            });
-        }
-        async function finalCheck() {
-            const input    = document.getElementById('session-password').value.trim();
-            const duration = totalTime - timeLeft;
-            const team     = localStorage.getItem('cyberTeam');
+  // toggle si on reclique le même
+  if (selectedSuspect === id) {
+    selectedSuspect = 0;
+    document.querySelectorAll('.suspect-card').forEach(el => el.classList.remove('selected'));
+    document.getElementById('photoPreview').style.display = 'none';
+    document.getElementById('suspectPreview').src = '';
+    return;
+  }
 
-            try {
-                const res = await fetch('http://localhost:3000/api/verify-final', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        team,
-                        duration,
-                        password: input,
-                        suspect: selectedSuspect,
-                        answers
-                    })
-                });
-                const data = await res.json();
-                if (data.success) {
-                    showBadge(data.badge);
-                    setTimeout(() => fadeTo('scores.html'), 3000);
-                } else {
-                    applyPenalty();
-                    alert('❌ Mot de passe ou suspect incorrect. Réessayez.');
-                }
-            } catch (err) {
-                console.error(err);
-                applyPenalty();
-                alert('Erreur serveur.');
-            }
-        }
+  selectedSuspect = id;
+  document.querySelectorAll('.suspect-card').forEach((el, idx) => {
+    el.classList.toggle('selected', idx + 1 === id);
+  });
+
+  const meta = SUSPECT_PHOTOS[id];
+  const prevBox = document.getElementById('photoPreview');
+  const img = document.getElementById('suspectPreview');
+  img.src = meta.src; img.alt = `Photo de ${meta.alt}`;
+  prevBox.style.display = 'flex';
+}
+
+        async function finalCheck() {
+  const input = document.getElementById('session-password').value.trim();
+  const team  = localStorage.getItem('cyberTeam') || 'EquipeDemo';
+
+  if (completedActivities < 4) {
+    alert('Termine d’abord les 4 activités.');
+    return;
+  }
+  if (!input) {
+    alert('Saisis le mot de passe de session.');
+    return;
+  }
+  if (!selectedSuspect) {
+    alert('Choisis un suspect.');
+    return;
+  }
+
+  // durée basée sur le timer serveur
+  const duration = Math.max(0, Math.floor((Date.now() - startedAtMs) / 1000));
+
+  try {
+    const res = await fetch('http://localhost:3000/api/verify-final', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        team,
+        password: input,
+        suspect: selectedSuspect,
+        answers
+        // duration n’est pas requis par ton backend actuel, tu peux l’omettre
+      })
+    });
+    const data = await res.json();
+
+    if (data.success) {
+      showBadge(data.badge);
+      setTimeout(() => fadeTo('scores.html'), 2000);
+    } else {
+      await applyPenalty(); // version serveur
+      alert('❌ Mot de passe ou suspect incorrect. Réessayez.');
+    }
+  } catch (err) {
+    console.error(err);
+    await applyPenalty();
+    alert('Erreur serveur.');
+  }
+}
+
 
         function showBadge(badge) {
             const icons = { or:'🥇', argent:'🥈', bronze:'🥉' };
@@ -1083,16 +1276,38 @@
             ov.classList.add('active');
             setTimeout(() => { window.location.href = url; }, 600);
         }
+        // Phrase claire
+        const originalMessage = "VOUS AVEZ TROIS JOURS POUR ME TROUVER";
 
+        // Fonction César (chiffrement)
+        function caesarEncrypt(str, shift) {
+        return [...str].map(c => {
+            if (!/[A-Z]/.test(c)) return c;
+            return String.fromCharCode((c.charCodeAt(0)-65 + shift) % 26 + 65);
+        }).join('');
+        }
+
+        // Décalage aléatoire entre 1 et 25
+        const randomShift = Math.floor(Math.random() * 25) + 1;
+
+        // Générer le message chiffré
+        const encryptedMessage = caesarEncrypt(originalMessage, randomShift);
+
+        // Afficher dans l’activité 1
+        document.getElementById("caesar-encrypted").textContent = `"${encryptedMessage}"`;
+
+        // Stocker pour checkCaesar()
+        let currentEncrypted = encryptedMessage;
 
         // Initialisation
-        window.onload = () => {
-            initMatrix();
-            updateTimer();
-            updateProgress();        // met à jour locks/completed dès le départ
-            document.getElementById('activity1').classList.add('visible');
-            attachRipples();
-        };
+        window.onload = async () => {
+  initMatrix();
+  const team = localStorage.getItem('cyberTeam') || 'EquipeDemo';
+  await ensureTimer(team, 1800); // démarre ou reprend
+  updateProgress();
+  document.getElementById('activity1').classList.add('visible');
+  attachRipples();
+};
     </script>
 </body>
 </html>
