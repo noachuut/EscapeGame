@@ -272,14 +272,14 @@ app.post('/api/activity1', (req, res) => {
   }).join('');
 
   // Phrase attendue
-  const expected = "VOUS AVEZ TROIS JOURS POUR ME TROUVER";
+  const expected = "IL EST UN HOMME";
 
   // Premier mot du message déchiffré
   const first = decoded.split(' ')[0].toUpperCase();
 
   // Validation
-  if (decoded === expected && first === 'VOUS' && answer.trim().toUpperCase() === 'VOUS') {
-    return res.json({ success: true, portion: 'VOUS' });
+  if (decoded === expected && first === 'IL' && answer.trim().toUpperCase() === 'IL') {
+    return res.json({ success: true, portion: 'HOMME' });
   }
 
   // Mauvaise réponse
@@ -297,7 +297,7 @@ app.post('/api/activity2', (req, res) => {
   
   // Vérifier si l'email sélectionné est le phishing
   if (selected === 'paypal_phishing' || selected === 1) {
-    return res.json({ success: true, portion: '1' });
+    return res.json({ success: true, portion: 'Paypal' });
   }
   
   // Sinon, mauvaise réponse

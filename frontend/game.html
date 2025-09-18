@@ -527,7 +527,7 @@
                 </div>
 
                 <div class="input-group">
-                    <label for="caesar-answer">Votre réponse (premier mot du message):</label>
+                    <label for="caesar-answer">Votre réponse (dernier mot du message):</label>
                     <input type="text" id="caesar-answer" placeholder="Entrez le premier mot déchiffré">
                 </div>
 
@@ -556,6 +556,7 @@
                 <button class="btn" onclick="checkPhishing()" disabled id="phishingBtn">Confirmer la sélection</button>
                 <button class="hint-button" onclick="toggleHint('hint2')">💡 Besoin d'aide ?</button>
                 <div class="hint-content" id="hint2">
+                    Phishing : technique de piratage qui consiste à envoyer de faux messages (mail, SMS, site) pour voler des infos personnelles comme mots de passe ou numéros de carte.
                     Recherchez les signes de phishing: une URL suspecte, demande urgente d'informations personnelles, expéditeur douteux, fautes d'orthographe...
                 </div>
             </div>
@@ -573,10 +574,10 @@
                         🔑 123456789
                     </div>
                     <div class="password-item" onclick="selectPassword(2)" id="pwd2">
-                        🔑 MotDePasse2024!
+                        🔑 MotDePasse2!
                     </div>
                     <div class="password-item" onclick="selectPassword(3)" id="pwd3">
-                        🔑 Th0m@s_D4r4nd!2024#Secure
+                        🔑 Th0m@s_D4r4nd!
                     </div>
                     <div class="password-item" onclick="selectPassword(4)" id="pwd4">
                         🔑 thomas123
@@ -594,7 +595,7 @@
                 <button class="btn" onclick="checkPasswordSecurity()" disabled id="passwordBtn">Vérifier l'ordre</button>
                 <button class="hint-button" onclick="toggleHint('hint3')">💡 Besoin d'aide ?</button>
                 <div class="hint-content" id="hint3">
-                    Un mot de passe sécurisé contient: majuscules, minuscules, chiffres, caractères spéciaux, et fait plus de 12 caractères. Évitez les mots du dictionnaire et les informations personnelles.
+                    Un mot de passe sécurisé contient: majuscules, minuscules, chiffres, caractères spéciaux, et fait plus de 12 caractères.
                 </div>
             </div>
 
@@ -610,25 +611,25 @@
                     </p>
                 </div>
                 <div class="input-group">
-    <label for="compte">Compte Tiktok :</label>
-    <input type="text" id="compte" placeholder="@ktoyon">
-</div>
+                    <label for="compte">Compte Tiktok :</label>
+                    <input type="text" id="compte" placeholder="@ktoyon">
+                </div>
 
-<div class="input-group">
-    <label for="followers">Nombre de followers :</label>
-    <input type="number" id="followers" min="0" placeholder="Ex: 12000">
-</div>
+                <div class="input-group">
+                    <label for="followers">Nombre de followers :</label>
+                    <input type="number" id="followers" min="0" placeholder="Ex: 12000">
+                </div>
 
-<div class="input-group">
-    <label for="ville">Quartier :</label>
-    <input type="text" id="ville" placeholder="Ex: kydas">
-</div>
+                <div class="input-group">
+                    <label for="ville">Quartier :</label>
+                    <input type="text" id="ville" placeholder="Ex: kydas">
+                </div>
 
-<button class="btn" onclick="checkOSINT()">Vérifier les infos</button>
-<button class="hint-button" onclick="toggleHint('hint4')">💡 Besoin d'aide ?</button>
-<div class="hint-content" id="hint4">
-    Essayez de retrouver les informations publiques : bio TikTok, réseaux sociaux, indices en arrière-plan des vidéos...
-</div>
+                <button class="btn" onclick="checkOSINT()">Vérifier les infos</button>
+                <button class="hint-button" onclick="toggleHint('hint4')">💡 Besoin d'aide ?</button>
+                <div class="hint-content" id="hint4">
+                    Essayez de retrouver les informations publiques : Compte tiktok de Thomas Durand puis retrouver le kidnappeur à partir du compte de thomas (commentaires, amis, republication)
+                </div>
         </div>
 
         <!-- Section finale -->
@@ -642,28 +643,28 @@
                 </div>
             <div class="suspects-grid">
                 <div class="suspect-card" onclick="selectSuspect(1)">
-                    <h3>Marc Dubois</h3>
+                    <h3>Abdel</h3>
                     <p>Homme</p>
                     <p>Francais</p>
                     <p>Aime l'algèbre</p>
                     <p>Blond</p>
                 </div>
                 <div class="suspect-card" onclick="selectSuspect(2)">
-                    <h3>Julie Martin</h3>
+                    <h3>Johnny</h3>
                     <p>Homme</p>
                     <p>Francais</p>
                     <p>Adore les équations</p>
-                    <p>Roux</p>
+                    <p>Chauve</p>
                 </div>
                 <div class="suspect-card" onclick="selectSuspect(3)">
-                    <h3>Pierre Leroy</h3>
-                    <p>Homme</p>
+                    <h3>Nick tamaire</h3>
+                    <p>Femme</p>
                     <p>Francais</p>
                     <p>Aime la litérature</p>
-                    <p>Blond</p>
+                    <p>Blonde</p>
                 </div>
                 <div class="suspect-card" onclick="selectSuspect(4)">
-                    <h3>Sarah Dumont</h3>
+                    <h3>Big mama</h3>
                     <p>Femme</p>
                     <p>Francais</p>
                     <p>Étudiante en psychologie</p>
@@ -962,16 +963,16 @@ async function applyPenalty() {
             {
                 id: 'paypal_phishing',
                 isPhishing: true,
-                from: 'support@paypal-security.com',
-                subject: 'Action requise: Vérifiez votre compte immédiatement',
-                content: 'Cher client, votre compte PayPal a été temporairement suspendu suite à une activité suspecte. Cliquez sur ce lien pour vérifier vos informations: http://paypal-verification.secure-update.com'
+                from: 'support@paipal-security.com',
+                subject: 'Il faut vérifiez votre compte immédiatement',
+                content: 'Cher client, votre compte PaiPal a été temporairement suspendu suite à une activité suspecte. Cliquez vite sur ce lien pour vérifier vos informations: http://paipal-gsgrbxkdf.secure-update.com'
             },
             {
                 id: 'lycee_legitimate',
                 isPhishing: false,
-                from: 'noreply@lycee-saintemarie.edu',
+                from: 'noreply@ldu.nc',
                 subject: 'Relevé de notes du trimestre',
-                content: 'Bonjour Thomas, votre relevé de notes du 2ème trimestre est disponible sur l\'ENT. Connectez-vous avec vos identifiants habituels pour le consulter.'
+                content: 'Bonjour Thomas, votre relevé de notes du 2ème trimestre est disponible sur pronote ldu. Connectez-vous avec vos identifiants habituels pour le consulter.'
             },
             {
                 id: 'netflix_legitimate',
@@ -1169,7 +1170,7 @@ function checkOSINT() {
         const SUSPECT_PHOTOS = {
         1: { src: './assets/Brad_Pitt_Cannes_2012.jpg', alt: 'Marc Dubois' },
         2: { src: './assets/johnny-sins-1.webp',       alt: 'Julie Martin' },
-        3: { src: './assets/thumbnail_squeezy-rap.webp', alt: 'Pierre Leroy' },
+        3: { src: './assets/paola.jpg', alt: 'Pierre Leroy' },
         4: { src: './assets/834745_polska_passe_sur_bfmtv_et_se_definit_com_opengraph_1200_61693564258567-format4by3.jpg', alt: 'Sarah Dumont' }
         };
 
@@ -1277,7 +1278,7 @@ function checkOSINT() {
             setTimeout(() => { window.location.href = url; }, 600);
         }
         // Phrase claire
-        const originalMessage = "VOUS AVEZ TROIS JOURS POUR ME TROUVER";
+        const originalMessage = "IL EST UN HOMME";
 
         // Fonction César (chiffrement)
         function caesarEncrypt(str, shift) {
