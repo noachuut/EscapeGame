@@ -10,9 +10,6 @@ services:
     volumes:
       - db_data:/var/lib/postgresql/data
       - ./frontend/sql/init.sql:/docker-entrypoint-initdb.d/init.sql
-    # En prod, pas forcément besoin d'ouvrir le port
-    # ports:
-    #   - "5432:5432"
 
   backend:
     build: ./backend
