@@ -693,6 +693,7 @@
 let endsAtMs = null;
 let startedAtMs = null;
 const DEFAULT_DURATION = 1800; // 30 min
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "";
 
 function renderTimer() {
   if (!endsAtMs) return;
@@ -712,15 +713,15 @@ function renderTimer() {
 
 async function ensureTimer(team, duration = DEFAULT_DURATION) {
   // 1) Essaye de récupérer un timer existant
-  let r = await fetch(`http://localhost:3000/api/timer/${encodeURIComponent(team)}`);
+  let r = await fetch(`${API_BASE_URL}/api/timer/${encodeURIComponent(team)}`);
   if (r.status === 404) {
     // 2) S’il n’existe pas, démarre-le
-    await fetch('http://localhost:3000/api/timer/start', {
+    await fetch(`${API_BASE_URL}/api/timer/start`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ team, duration })
     });
-    r = await fetch(`http://localhost:3000/api/timer/${encodeURIComponent(team)}`);
+    r = await fetch(`${API_BASE_URL}/api/timer/${encodeURIComponent(team)}`);
   }
   const data = await r.json();
   startedAtMs = new Date(data.startedAt).getTime();
@@ -733,7 +734,7 @@ async function applyPenalty() {
   // Option A (recommandé) : côté serveur ↓
   try {
     const team = localStorage.getItem('cyberTeam');
-    const res = await fetch('http://localhost:3000/api/timer/penalty', {
+    const res = await fetch(`${API_BASE_URL}/api/timer/penalty`, {
       method: 'POST', headers: { 'Content-Type':'application/json' },
       body: JSON.stringify({ team, seconds: 10 })
     });
@@ -923,7 +924,7 @@ async function applyPenalty() {
             }
 
             // Vérifie avec le backend
-            fetch('http://localhost:3000/api/activity1', {
+            fetch(`${API_BASE_URL}/api/activity1`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ shift, answer, encrypted: currentEncrypted })
@@ -1035,7 +1036,7 @@ async function applyPenalty() {
         function checkPhishing() {
             const card = document.getElementById('activity2');
             
-            fetch('http://localhost:3000/api/activity2', {
+            fetch(`${API_BASE_URL}/api/activity2`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ selected: selectedEmailId })
@@ -1091,7 +1092,7 @@ async function applyPenalty() {
 
         function checkPasswordSecurity() {
             const card = document.getElementById('activity3');
-            fetch('http://localhost:3000/api/activity3', {
+            fetch(`${API_BASE_URL}/api/activity3`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ order: passwordSelectionOrder })
@@ -1134,7 +1135,7 @@ function checkOSINT() {
     const card = document.getElementById('activity4');
 
     // Envoi des infos vers le backend
-    fetch('http://localhost:3000/api/activity4', {
+    fetch(`${API_BASE_URL}/api/activity4`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ compte, followers, ville })
@@ -1218,7 +1219,7 @@ function checkOSINT() {
   const duration = Math.max(0, Math.floor((Date.now() - startedAtMs) / 1000));
 
   try {
-    const res = await fetch('http://localhost:3000/api/verify-final', {
+    const res = await fetch(`${API_BASE_URL}/api/verify-final`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
