@@ -1,0 +1,48 @@
+services:
+  db:
+    image: postgres:15
+    container_name: escape_db
+    restart: always
+    environment:
+      POSTGRES_USER: escape_user
+      POSTGRES_PASSWORD: escape_pass
+      POSTGRES_DB: escape_game
+    volumes:
+      - db_data:/var/lib/postgresql/data
+      - ./frontend/sql/init.sql:/docker-entrypoint-initdb.d/init.sql
+    # En prod, pas forcément besoin d'ouvrir le port
+    # ports:
+    #   - "5432:5432"
+
+  backend:
+    build: ./backend
+    container_name: escape_backend
+    restart: always
+    environment:
+      PORT: 3000
+      DB_HOST: db
+      DB_PORT: 5432
+      DB_USER: escape_user
+      DB_PASSWORD: escape_pass
+      DB_NAME: escape_game
+    depends_on:
+      - db
+    expose:
+      - "3000"
+
+  frontend:
+    image: nginx:alpine
+    container_name: escape_frontend
+    restart: always
+    volumes:
+      - ./frontend:/usr/share/nginx/html:ro
+    expose:
+      - "80"
+
+volumes:
+  db_data:
+
+networks:
+  default:
+    external: true
+    name: nginx_default
