@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Cyber Detective – Accueil</title>
   <link rel="icon" href="assets/logo.png" type="image/png">
+  <script src="config.js"></script>
   <style>
     * { margin:0; padding:0; box-sizing:border-box; }
     body {
@@ -146,7 +147,6 @@
   </div>
 
   <script>
-    const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "";
     const intro = document.getElementById('intro-overlay');
 
     intro.addEventListener('click', () => {

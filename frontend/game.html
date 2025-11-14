@@ -680,6 +680,7 @@
             <button class="btn" onclick="finalCheck()">🔓 SAUVER THOMAS !</button>
         </div>
     </div>
+<script src="config.js"></script>
 
     <script>
         let completedActivities = 0;
@@ -692,8 +693,7 @@
 // === TIMER PILOTÉ PAR LE SERVEUR ===
 let endsAtMs = null;
 let startedAtMs = null;
-const DEFAULT_DURATION = 1800; // 30 min
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "";
+const DEFAULT_DURATION = 1800; // 30 minutes en secondes;
 
 function renderTimer() {
   if (!endsAtMs) return;

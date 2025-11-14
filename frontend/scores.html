@@ -31,10 +31,10 @@
       <tr><td colspan="5">Chargement…</td></tr>
     </tbody>
   </table>
-
+<script src="config.js"></script>
 <script>
 (function () {
-  const API = 'http://localhost:3000/api/scores'; // adapte si besoin
+  const API = `${API_BASE_URL}/api/scores`; // adapte si besoin
   const tbody = document.getElementById('scoresBody');
   if (!tbody) {
     console.error("Pas de <tbody id='scoresBody'> sur la page.");
