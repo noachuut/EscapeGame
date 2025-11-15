@@ -1,35 +1,35 @@
 services:
-  db:
+  db3:
     image: postgres:15
-    container_name: escape_db
+    container_name: escape_db3     
     restart: always
     environment:
       POSTGRES_USER: escape_user
       POSTGRES_PASSWORD: escape_pass
       POSTGRES_DB: escape_game
     volumes:
-      - db_data:/var/lib/postgresql/data
+      - db_data3:/var/lib/postgresql/data
       - ./frontend/sql/init.sql:/docker-entrypoint-initdb.d/init.sql
 
-  backend:
+  backend3:
     build: ./backend
-    container_name: escape_backend
+    container_name: escape_backend3
     restart: always
     environment:
       PORT: 3000
-      DB_HOST: db
+      DB_HOST: db3
       DB_PORT: 5432
       DB_USER: escape_user
       DB_PASSWORD: escape_pass
       DB_NAME: escape_game
     depends_on:
-      - db
+      - db3
     expose:
       - "3000"
 
-  frontend:
+  frontend3:
     image: nginx:alpine
-    container_name: escape_frontend
+    container_name: escape_frontend3
     restart: always
     volumes:
       - ./frontend:/usr/share/nginx/html:ro
@@ -37,7 +37,7 @@ services:
       - "80"
 
 volumes:
-  db_data:
+  db_data3:
 
 networks:
   default:
