@@ -36,14 +36,11 @@ jobs:
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           port: ${{ secrets.SSH_PORT || 22 }}
           script: |
-            cd ${{ secrets.SSH_PROJECT_PATH }}
+            cd ${{ secrets.SSH_PROJECT_PATH_2 }}
             echo "🔄 git pull ..."
             git pull
 
-            echo "🐳 docker compose build backend ..."
-            docker compose -f docker-compose.prod.yml build backend
-
-            echo "🚀 docker compose up -d ..."
-            docker compose -f docker-compose.prod.yml up -d
+            echo "🚀 docker compose build et up btp lajayz"
+            docker compose -f docker-compose.prod2.yml up --build -d
 
             echo "✅ Déploiement terminé."
