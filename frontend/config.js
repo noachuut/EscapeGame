@@ -1,3 +1,5 @@
-const API_BASE_URL = window.location.hostname === "escape-game.btsinfo.nc"
-  ? "http://escape_backend:3000"   // accès interne Docker en prod
-  : "http://localhost:3000";       // pour le dev
+const isProd = window.location.hostname === "escape-game.btsinfo.nc";
+
+const API_BASE_URL = isProd
+  ? "https://escape-game.btsinfo.nc" // même domaine
+  : "http://localhost:3000"; 

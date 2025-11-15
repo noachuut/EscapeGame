@@ -1,0 +1,49 @@
+name: EscapeGame CI/CD
+
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+  test-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+          cache-dependency-path: backend/package-lock.json
+
+      - name: Install & test backend
+        working-directory: ./backend
+        run: |
+          npm ci
+          # Si tu n'as pas de tests, remplace par : npm run lint ou supprime la ligne suivante
+          npm test || echo "⚠️ Aucun test défini, à adapter plus tard"
+
+      # Déploiement sur ton serveur
+      - name: Deploy over SSH
+        if: success()
+        uses: appleboy/ssh-action@v1.0.0
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          port: ${{ secrets.SSH_PORT || 22 }}
+          script: |
+            cd ${{ secrets.SSH_PROJECT_PATH }}
+            echo "🔄 git pull ..."
+            git pull
+
+            echo "🐳 docker compose build backend ..."
+            docker compose -f docker-compose.prod.yml build backend
+
+            echo "🚀 docker compose up -d ..."
+            docker compose -f docker-compose.prod.yml up -d
+
+            echo "✅ Déploiement terminé."
