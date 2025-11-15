@@ -38,6 +38,7 @@ jobs:
           script: |
             cd ${{ secrets.SSH_PROJECT_PATH_2 }}
             echo "🔄 git pull ..."
+            sudo su
             git pull
 
             echo "🚀 docker compose build et up btp lajayz"
