@@ -45,7 +45,7 @@ cd frontend
 ```
 #### Configurez et Démarrer Postgres en arrière-plan
 ```
-docker-compose up -d db
+docker-compose up --build -d 
 ```
 #### Vérifiez que le container tourne
 ```bash

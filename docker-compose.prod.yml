@@ -1,7 +1,7 @@
 services:
-  db:
+  db3:
     image: postgres:15
-    container_name: escape_db
+    container_name: escape_db3     
     restart: always
     environment:
       POSTGRES_USER: escape_user
@@ -13,7 +13,7 @@ services:
 
   backend:
     build: ./backend
-    container_name: escape_backend
+    container_name: escape_backend3
     restart: always
     environment:
       PORT: 3000
@@ -29,7 +29,7 @@ services:
 
   frontend:
     image: nginx:alpine
-    container_name: escape_frontend
+    container_name: escape_frontend3
     restart: always
     volumes:
       - ./frontend:/usr/share/nginx/html:ro
@@ -37,7 +37,7 @@ services:
       - "80"
 
 volumes:
-  db_data:
+  db_data3:
 
 networks:
   default:
