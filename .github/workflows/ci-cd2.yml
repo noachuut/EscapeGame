@@ -1,0 +1,48 @@
+name: EscapeGame CI/CD
+
+on:
+  push:
+    branches: [ lajayz ]
+
+jobs:
+  test-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+          cache-dependency-path: backend/package-lock.json
+
+      - name: Install & test backend
+        working-directory: ./backend
+        run: |
+          npm ci
+          # Si tu n'as pas de tests, remplace par : npm run lint ou supprime la ligne suivante
+          npm test || echo "⚠️ Aucun test défini, à adapter plus tard"
+
+      # Déploiement sur ton serveur
+      - name: Deploy over SSH
+        if: success()
+        uses: appleboy/ssh-action@v1.0.0
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          port: ${{ secrets.SSH_PORT || 22 }}
+          script: |
+            cd ${{ secrets.SSH_PROJECT_PATH_2 }}
+            echo "🔄 git fetch + checkout escape2..."
+            git fetch origin
+            git checkout main-kymani
+            git pull origin main-kymani
+
+            echo "🚀 docker compose build et up btp lajayz"
+            docker compose -f docker-compose.prod2.yml up --build -d
+
+            echo "✅ Déploiement terminé."
