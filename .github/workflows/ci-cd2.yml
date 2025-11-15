@@ -2,7 +2,7 @@ name: EscapeGame CI/CD
 
 on:
   push:
-    branches: [ main ]
+    branches: [ lajayz ]
 
 jobs:
   test-and-deploy:
